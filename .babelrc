@@ -1,4 +1,7 @@
 {
   "presets": ["react"],
-  "plugins": ["transform-inline-environment-variables"]
+  "plugins": [
+    "transform-inline-environment-variables",
+    "transform-object-rest-spread"
+  ]
 }

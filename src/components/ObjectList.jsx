@@ -3,7 +3,7 @@
 const React = require('react');
 const { Link } = require('react-router');
 
-module.exports = class Accounts extends React.Component {
+module.exports = class ObjectList extends React.Component {
 
     componentWillMount() {
         this.props.conn.describeGlobal((error, res) => {
@@ -24,7 +24,7 @@ module.exports = class Accounts extends React.Component {
     render() {
         if (this.state && this.state.error) {
             return (
-                <div>{this.state.error}</div>
+                <div>{this.state.error.message}</div>
             );
         }
 
@@ -36,7 +36,7 @@ module.exports = class Accounts extends React.Component {
 
         return (
             <div>
-                <h2>Objects</h2>
+                <h1>Objects</h1>
                 <ul>
                     { this.state.objects.map((object, i) => 
                         <li key={i}>

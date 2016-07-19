@@ -17,7 +17,10 @@ module.exports = class Login extends React.Component {
                 return;
             }
 
-            this.props.actions.authenticate();
+            this.props.actions.authenticate(
+                this.props.conn.accessToken,
+                this.props.conn.instanceUrl
+            );
         });
     }
 

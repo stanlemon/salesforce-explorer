@@ -1,10 +1,12 @@
 
 const INCREMENT = 'INCREMENT';
 const AUTHENTICATE = 'AUTHENTICATE';
+const UNATHENTINCATE = 'UNATHENTINCATE';
 
 module.exports = {
     INCREMENT,
     AUTHENTICATE,
+    UNATHENTINCATE,
 
     increment: () => {
         return {
@@ -12,9 +14,17 @@ module.exports = {
         };
     },
 
-    authenticate: () => {
+    authenticate: (accessToken, instanceUrl) => {
         return {
-            type: AUTHENTICATE
+            type: AUTHENTICATE,
+            accessToken,
+            instanceUrl
+        };
+    },
+
+    unauthenticate: () => {
+        return {
+            type: UNATHENTINCATE
         };
     }
 };

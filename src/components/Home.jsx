@@ -1,7 +1,6 @@
 "use strict";
 
 const React = require('react');
-const { Link } = require('react-router');
 
 module.exports = class Home extends React.Component {
 
@@ -9,7 +8,7 @@ module.exports = class Home extends React.Component {
         return (
             <div>
                 <h1>Home</h1>
-                <Link to={`/objects`}>Go to Objects</Link>
+                <p>Welcome...</p>
             </div>
         );
     }

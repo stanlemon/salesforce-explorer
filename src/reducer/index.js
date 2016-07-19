@@ -1,18 +1,27 @@
 const actions = require('../actions/');
 const defaultState = {
-    auth: false,
-    counter: 0,
+    accessToken: null,
+    instanceUrl: null,
     debugUsername: process.env.DEBUG_USERNAME,
     debugPassword: process.env.DEBUG_PASSWORD
 };
 
-module.exports = (state = defaultState, action) => {
+const { routerReducer } = require('react-router-redux');
+
+function app(state, action) {
     switch (action.type) {
+        case actions.UNATHENTINCATE:
+            return Object.assign({}, state, { accessToken: null, instanceUrl : null })
         case actions.AUTHENTICATE:
-            return Object.assign({}, state, { auth: true });
-        case actions.INCREMENT:
-            return { counter: state.counter+1 };
+            return Object.assign({}, state, { accessToken: action.accessToken, instanceUrl: action.instanceUrl });
         default:
             return state;
     }
+}
+    
+module.exports = (state = defaultState, action) => {
+    return {
+        ...app(state, action),
+        routing: routerReducer(state, action)
+    };
 };
