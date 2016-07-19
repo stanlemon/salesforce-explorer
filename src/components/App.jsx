@@ -3,6 +3,7 @@
 const React = require('react');
 const Login = require('./Login');
 const Accounts = require('./Accounts');
+const ObjectList = require('./ObjectList');
 const jsforce = require('jsforce');
 
 module.exports = class App extends React.Component {
@@ -19,7 +20,7 @@ module.exports = class App extends React.Component {
         }
 
         return (
-            <Accounts {...this.props} conn={this.state.conn} />
+            <ObjectList {...this.props} conn={this.state.conn} />
         );
     }
 };
