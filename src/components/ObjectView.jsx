@@ -1,12 +1,13 @@
 "use strict";
 
 const React = require('react');
-const { Link } = require('react-router');
 
-module.exports = class Accounts extends React.Component {
+module.exports = class ObjectView extends React.Component {
 
     componentWillMount() {
-        this.props.conn.describeGlobal((error, res) => {
+        const { name } = this.props.params;
+
+        this.props.conn.describe(name, (error, object) => {
             if (error) {
                 console.error(error);
                 this.setState({
@@ -16,7 +17,7 @@ module.exports = class Accounts extends React.Component {
             }
 
             this.setState({
-                objects: res.sobjects
+                object
             });
         });
     }
@@ -28,25 +29,25 @@ module.exports = class Accounts extends React.Component {
             );
         }
 
-        if (!this.state || !this.state.objects) {
+        if (!this.state || !this.state.object) {
             return (
-                <div><em>Loading objects...</em></div>
+                <div><em>Loading object...</em></div>
             );
         }
 
+        console.log(this.state.object);
+
         return (
             <div>
-                <h2>Objects</h2>
+                <div>ObjectView</div>
                 <ul>
-                    { this.state.objects.map((object, i) => 
-                        <li key={i}>
-                            <Link to={`/objects/${object.name}`}>
-                                {object.name} { object.keyPrefix && <em>{object.keyPrefix}</em> }
-                            </Link>
+                    {this.state.object.fields.map((field, i) => 
+                        <li key={'field-' + i}>
+                            {field.label}
                         </li>
-                    ) }
+                    )}
                 </ul>
             </div>
         );
     }
-};
+}

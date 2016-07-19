@@ -27,9 +27,11 @@
   "dependencies": {
     "dotenv": "^2.0.0",
     "jsforce": "^1.7.0",
+    "lodash": "^4.13.1",
     "react": "^15.2.1",
     "react-dom": "^15.2.1",
     "react-redux": "^4.4.5",
+    "react-router": "^2.6.0",
     "redux": "^3.5.2"
   }
 }

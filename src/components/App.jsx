@@ -1,26 +1,26 @@
 "use strict";
 
+const { omit } = require('lodash');
 const React = require('react');
 const Login = require('./Login');
-const Accounts = require('./Accounts');
-const ObjectList = require('./ObjectList');
 const jsforce = require('jsforce');
 
 module.exports = class App extends React.Component {
 
-    componentWillMount() {
-        this.setState({
-            conn: new jsforce.Connection()
-        });
+    constructor(props) {
+        super(props);
+
+        this.conn = new jsforce.Connection();
     }
 
     render() {
         if (!this.props.auth) {
-            return <Login {...this.props} conn={this.state.conn} />
+            return <Login {...this.props} conn={this.conn} />
         }
 
-        return (
-            <ObjectList {...this.props} conn={this.state.conn} />
+        return React.cloneElement(
+            this.props.children,
+            Object.assign({}, this.props, { conn: this.conn })
         );
     }
 };
