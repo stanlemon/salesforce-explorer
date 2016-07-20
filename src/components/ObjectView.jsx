@@ -1,6 +1,7 @@
 "use strict";
 
 const React = require('react');
+const { Header, DataTable } = require('./lds');
 
 module.exports = class ObjectView extends React.Component {
 
@@ -35,18 +36,10 @@ module.exports = class ObjectView extends React.Component {
             );
         }
 
-        console.log(this.state.object);
-
         return (
             <div>
-                <div>ObjectView</div>
-                <ul>
-                    {this.state.object.fields.map((field, i) => 
-                        <li key={'field-' + i}>
-                            {field.label}
-                        </li>
-                    )}
-                </ul>
+                <Header title={this.state.object.label} />
+                <DataTable headers={['label', 'name', 'type', 'custom', ]} records={this.state.object.fields} />
             </div>
         );
     }

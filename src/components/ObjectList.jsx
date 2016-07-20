@@ -2,8 +2,9 @@
 
 const React = require('react');
 const { Link } = require('react-router');
+const { Header, DataTable } = require('./lds');
 
-module.exports = class ObjectList extends React.Component {
+class ObjectList extends React.Component {
 
     componentWillMount() {
         this.props.conn.describeGlobal((error, res) => {
@@ -36,17 +37,21 @@ module.exports = class ObjectList extends React.Component {
 
         return (
             <div>
-                <h1>Objects</h1>
-                <ul>
-                    { this.state.objects.map((object, i) => 
-                        <li key={i}>
-                            <Link to={`/objects/${object.name}`}>
-                                {object.name} { object.keyPrefix && <em>{object.keyPrefix}</em> }
-                            </Link>
-                        </li>
-                    ) }
-                </ul>
+                <Header title="Objects"/>
+                <DataTable
+                    headers={['keyPrefix', 'name', 'label', 'custom']}
+                    records={this.state.objects}
+                    onClick={(record) => {
+                        this.context.router.push(`/objects/${record.name}`)
+                    }}
+                />
             </div>
         );
     }
 };
+
+ObjectList.contextTypes = {
+    router: React.PropTypes.object.isRequired
+};
+
+module.exports = ObjectList;

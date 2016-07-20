@@ -4,9 +4,30 @@ const React = require('react');
 
 module.exports = class DataTable extends React.Component {
 
+    handleClick(record, headers) {
+        if (this.props.onClick) {
+            this.props.onClick.apply(null, [record, headers]);
+        }
+    }
+
+    renderValue(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        return value + '';
+    }
+
     render() {
-        const headers = [];
-        const records = [];
+        let { headers, records } = this.props;
+
+        if (!records) {
+            records = [];
+        }
+
+        if (!headers) {
+            headers = Object.keys(records[0]);
+        }
 
         return (
             <table className="slds-table slds-table--bordered slds-table--cell-buffer">
@@ -21,24 +42,12 @@ module.exports = class DataTable extends React.Component {
                 </thead>
                 <tbody>
                     {records.map((record, i) => 
-                    <tr>
-                        <th scope="row" data-label="Opportunity Name" title="Cloudhub">
-                            <div className="slds-truncate"><a href="javascript:void(0);">Cloudhub</a></div>
-                        </th>
-                        <td data-label="Account Name" title="Cloudhub">
-                            <div className="slds-truncate">Cloudhub</div>
+                    <tr key={'row' + i} onClick={this.handleClick.bind(this, record, headers)}>
+                        {headers.map((key) =>
+                        <td key={'col-' + i + '-' + key} scope="row" data-label={key} title={record[key]}>
+                            <div className="slds-truncate">{this.renderValue(record[key])}</div>
                         </td>
-                        <td data-label="Close Date" title="4/14/2015">
-                            <div className="slds-truncate">4/14/2015</div>
-                        </td>
-                        <td data-label="Prospecting" title="Prospecting">
-                            <div className="slds-truncate">Prospecting</div>
-                        </td>
-                        <td data-label="Confidence" title="20%">20%</td>
-                        <td data-label="Amount" title="$25k">$25k</td>
-                        <td data-label="Contact" title="jrogers@cloudhub.com">
-                            <div className="slds-truncate"><a href="javascript:void(0);">jrogers@cloudhub.com</a></div>
-                        </td>
+                        )}
                     </tr>
                     )}
                 </tbody>
