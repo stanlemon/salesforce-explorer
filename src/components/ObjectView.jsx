@@ -1,6 +1,7 @@
 "use strict";
 
 const React = require('react');
+const { Link } = require('react-router');
 const { Header, DataTable } = require('./lds');
 
 module.exports = class ObjectView extends React.Component {
@@ -39,6 +40,9 @@ module.exports = class ObjectView extends React.Component {
         return (
             <div>
                 <Header title={this.state.object.label} />
+                <p>
+                    <Link to={`/records/${this.state.object.name}`}>View Records</Link>
+                </p>
                 <DataTable headers={['label', 'name', 'type', 'custom', ]} records={this.state.object.fields} />
             </div>
         );

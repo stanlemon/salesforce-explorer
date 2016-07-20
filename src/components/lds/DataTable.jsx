@@ -15,6 +15,10 @@ module.exports = class DataTable extends React.Component {
             return '';
         }
 
+        if (typeof(value) === 'object') {
+            return JSON.stringify(value);
+        }
+
         return value + '';
     }
 

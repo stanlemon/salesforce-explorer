@@ -24,6 +24,7 @@ const App = require('./components/App');
 const Home = require('./components/Home');
 const ObjectList = require('./components/ObjectList');
 const ObjectView = require('./components/ObjectView');
+const RecordList = require('./components/RecordList');
 
 const Root = connect(state => state, dispatch => {
     return { actions: bindActionCreators(actions, dispatch) };
@@ -38,6 +39,7 @@ ReactDOM.render(
                 <IndexRoute component={Home}/>
                 <Route path="/objects" component={ObjectList}/>
                 <Route path="/objects/:name" component={ObjectView}/>
+                <Route path="/records/:name" component={RecordList}/>
             </Route>
         </Router>
     </Provider>,
