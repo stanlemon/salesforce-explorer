@@ -25,6 +25,7 @@ const Home = require('./components/Home');
 const ObjectList = require('./components/ObjectList');
 const ObjectView = require('./components/ObjectView');
 const RecordList = require('./components/RecordList');
+const RecordView = require('./components/RecordView');
 
 const Root = connect(state => state, dispatch => {
     return { actions: bindActionCreators(actions, dispatch) };
@@ -40,6 +41,7 @@ ReactDOM.render(
                 <Route path="/objects" component={ObjectList}/>
                 <Route path="/objects/:name" component={ObjectView}/>
                 <Route path="/records/:name" component={RecordList}/>
+                <Route path="/records/:name/:id" component={RecordView}/>
             </Route>
         </Router>
     </Provider>,

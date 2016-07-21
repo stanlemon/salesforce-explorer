@@ -30,7 +30,7 @@ module.exports = class RecordList extends React.Component {
             );
         }
 
-        const { name } = this.props.params.name;
+        const { name } = this.props.params;
 
         const headers = ['Id', 'Name'].concat(Object.keys(this.state.records[0]).filter((v) =>
             v !== 'attributes' && v !== 'Id' && v !== 'Name'
@@ -39,7 +39,14 @@ module.exports = class RecordList extends React.Component {
         return (
             <div>
                 <Header title={name} />
-                <DataTable headers={headers} records={this.state.records} />
+                <DataTable
+                    headers={headers}
+                    records={this.state.records}
+                    onClick={(record) => {
+                        console.log(record);
+                        this.props.router.push(`/records/${name}/${record.Id}`)
+                    }}
+                />
             </div>
         );
     }

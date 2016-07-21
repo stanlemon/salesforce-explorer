@@ -8,10 +8,6 @@ const { Header } = require('./lds');
 
 module.exports = class App extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     componentWillReceiveProps(nextProps) {
         // After rehydration we might get an accessToken, we should use it to relogin
         if (!this.props.accessToken && nextProps.accessToken) {

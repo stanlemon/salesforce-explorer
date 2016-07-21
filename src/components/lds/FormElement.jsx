@@ -12,7 +12,7 @@ module.exports = class FormElement extends React.Component {
                 <span className="slds-form-element__label">{label}</span>
                 <div className="slds-form-element__control">
                     <span className="slds-form-element__static">
-                        {React.cloneElement(children, this.props)}
+                        {children}
                     </span>
                 </div>
             </div>

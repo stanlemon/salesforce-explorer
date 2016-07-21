@@ -10,7 +10,7 @@ module.exports = class PanelSection extends React.Component {
         return (
             <div className="slds-panel__section">
                 <h3 className="slds-text-heading--small slds-m-bottom--medium">{title}</h3>
-                {React.cloneElement(children, this.props)}
+                {children}
             </div>
         );
     }
