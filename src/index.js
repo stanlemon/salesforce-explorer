@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-const { Router, Route, IndexRoute, hashHistory } = require('react-router');
+const { Router, Route, IndexRoute, hashHistory, withRouter } = require('react-router');
 
 const { createStore, combineReducers, bindActionCreators } = require('redux');
 const { Provider, connect } = require('react-redux');
@@ -28,7 +28,7 @@ const RecordList = require('./components/RecordList');
 
 const Root = connect(state => state, dispatch => {
     return { actions: bindActionCreators(actions, dispatch) };
-})(App);
+})(withRouter(App));
 
 const path = __dirname + '/index.html';
 

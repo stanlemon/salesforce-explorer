@@ -4,7 +4,7 @@ const React = require('react');
 const { Link } = require('react-router');
 const { Header, DataTable } = require('./lds');
 
-class ObjectList extends React.Component {
+module.exports = class ObjectList extends React.Component {
 
     componentWillMount() {
         this.props.conn.describeGlobal((error, res) => {
@@ -42,16 +42,10 @@ class ObjectList extends React.Component {
                     headers={['keyPrefix', 'name', 'label', 'custom']}
                     records={this.state.objects}
                     onClick={(record) => {
-                        this.context.router.push(`/objects/${record.name}`)
+                        this.props.router.push(`/objects/${record.name}`)
                     }}
                 />
             </div>
         );
     }
 };
-
-ObjectList.contextTypes = {
-    router: React.PropTypes.object.isRequired
-};
-
-module.exports = ObjectList;

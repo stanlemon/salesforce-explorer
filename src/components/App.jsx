@@ -52,9 +52,9 @@ module.exports = class App extends React.Component {
 
                 <div>
                     {React.cloneElement(
-                this.props.children,
-                Object.assign({}, this.props, { conn: this.conn })
-            )}
+                        this.props.children,
+                        Object.assign({}, this.props, { conn: this.conn })
+                    )}
                 </div>
             </div>
         );

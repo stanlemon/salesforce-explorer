@@ -22,6 +22,6 @@ function app(state, action) {
 module.exports = (state = defaultState, action) => {
     return {
         ...app(state, action),
-        routing: routerReducer(state, action)
+        routing: routerReducer(state.routing, action)
     };
 };
