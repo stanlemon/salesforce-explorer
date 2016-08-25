@@ -41,7 +41,7 @@ module.exports = class App extends React.Component {
         return (
             <div>
                 <p>
-                    <Link to={`/`}>Home</Link> | <Link to={`/objects`}>Objects</Link> | <a onClick={this.logout.bind(this)}>Logout</a>
+                    <Link to={`/`}>Home</Link> | <Link to={`/objects`}>Objects</Link> | <a onClick={this.logout.bind(this)}>Logout</a> | <Link to={`/push`}>Push Topics</Link>
                 </p>
 
                 <br />
