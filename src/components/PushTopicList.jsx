@@ -1,14 +1,13 @@
 "use strict";
 
 const React = require('react');
+const { Link } = require('react-router');
 const { Header, DataTable } = require('./lds');
 
-module.exports = class RecordList extends React.Component {
+module.exports = class PushTopicList extends React.Component {
 
     componentWillMount() {
-        const { name } = this.props.params;
-
-        this.props.conn.sobject(name).find().execute((error, records) => {
+        this.props.conn.sobject("PushTopic").find().execute((error, records) => {
             if (error) {
                 console.error(error);
                 this.setState({
@@ -30,20 +29,23 @@ module.exports = class RecordList extends React.Component {
             );
         }
 
-        const { name } = this.props.params;
+        if (this.state && this.state.error) {
+            return (
+                <div>{this.state.error}</div>
+            );
+        }
 
-        const headers = ['Id', 'Name'].concat(Object.keys(this.state.records[0]).filter((v) =>
-            v !== 'attributes' && v !== 'Id' && v !== 'Name'
-        ).sort());
+        const headers = ['Id', 'Name', 'Query'];
 
         return (
             <div>
-                <Header title={name} />
+                <Header title="Push Topics" />
                 <DataTable
                     headers={headers}
                     records={this.state.records}
                     onClick={(record) => {
-                        this.props.router.push(`/records/${name}/${record.Id}`)
+                        console.log(record);
+                        this.props.router.push(`/push/${record.Id}`)
                     }}
                 />
             </div>

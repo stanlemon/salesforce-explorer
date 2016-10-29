@@ -1,0 +1,15 @@
+.titlebar {
+    background-color: #0070d2;
+    color: #fff;
+    padding-left: 100px;
+    height: 37px;
+    line-height: 37px;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+.titlebar a, .titlebar a:hover, .titlebar a:active, .titlebar a:visited {
+    font-size: 1.1em;
+    color: #fff;
+    text-decoration: none;
+}

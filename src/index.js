@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const React = require('react');
 const ReactDOM = require('react-dom');
 const { Router, Route, IndexRoute, hashHistory, withRouter } = require('react-router');
@@ -26,7 +24,8 @@ const ObjectList = require('./components/ObjectList');
 const ObjectView = require('./components/ObjectView');
 const RecordList = require('./components/RecordList');
 const RecordView = require('./components/RecordView');
-const PushTopic = require('./components/PushTopic');
+const PushTopicList = require('./components/PushTopicList');
+const PushTopicView = require('./components/PushTopicView');
 
 const Root = connect(state => state, dispatch => {
     return { actions: bindActionCreators(actions, dispatch) };
@@ -43,7 +42,8 @@ ReactDOM.render(
                 <Route path="/objects/:name" component={ObjectView}/>
                 <Route path="/records/:name" component={RecordList}/>
                 <Route path="/records/:name/:id" component={RecordView}/>
-                <Route path="/push" component={PushTopic}/>
+                <Route path="/push" component={PushTopicList}/>
+                <Route path="/push/:id" component={PushTopicView}/>
             </Route>
         </Router>
     </Provider>,

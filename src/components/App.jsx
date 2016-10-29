@@ -3,24 +3,23 @@
 const jsforce = require('jsforce');
 const React = require('react');
 const { Link } = require('react-router');
-const Login = require('./Login');
 const { Header } = require('./lds');
+const querystring = require('querystring');
 
 module.exports = class App extends React.Component {
 
-    componentWillReceiveProps(nextProps) {
-        // After rehydration we might get an accessToken, we should use it to relogin
-        if (!this.props.accessToken && nextProps.accessToken) {
-            this.conn = new jsforce.Connection({
-                instanceUrl: nextProps.instanceUrl,
-                accessToken: nextProps.accessToken,
-            });
-        }
-    }
-
     componentWillMount() {
-        // Our default connection object is NOT connected
-        this.conn = new jsforce.Connection();
+        const {
+            accessToken,
+            instanceUrl
+        } = querystring.parse(window.location.search.substring(1));
+
+        if (accessToken && instanceUrl) {
+            this.conn = new jsforce.Connection({
+                instanceUrl,
+                accessToken,
+            });
+        } // else throw an error!
     }
 
     logout() {
@@ -28,23 +27,16 @@ module.exports = class App extends React.Component {
             if (error) {
                 console.error(err);
             }
-
-            this.props.actions.unauthenticate();
         });
     }
 
     render() {
-        if (!this.conn.accessToken) {
-            return <Login {...this.props} conn={this.conn} />
-        }
-
         return (
             <div>
-                <p>
-                    <Link to={`/`}>Home</Link> | <Link to={`/objects`}>Objects</Link> | <a onClick={this.logout.bind(this)}>Logout</a> | <Link to={`/push`}>Push Topics</Link>
-                </p>
-
-                <br />
+                <div className="titlebar">
+                    <span style={{ color: '#fff' }} className="slds-icon_container slds-icon-standard-default" />
+                    <Link to={`/`}>Home</Link> | <Link to={`/objects`}>Objects</Link> | <Link to={`/push`}>Push Topics</Link> | <a onClick={this.logout.bind(this)}>Logout</a>
+                </div>
 
                 <div>
                     {React.cloneElement(
