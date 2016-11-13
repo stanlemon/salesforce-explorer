@@ -5,19 +5,21 @@ const React = require('react');
 const { Link } = require('react-router');
 const { Header } = require('./lds');
 const querystring = require('querystring');
+const keytar = require('keytar');
+
+const KEYTAR_SERVICE = 'Salesforce Explorer';
+const KEYTAR_ACCOUNT = 'Oauth';
+
 
 module.exports = class App extends React.Component {
 
     componentWillMount() {
-        const {
-            accessToken,
-            instanceUrl
-        } = querystring.parse(window.location.search.substring(1));
+        const auth = JSON.parse(keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT));
 
-        if (accessToken && instanceUrl) {
+        if (auth !== null) {
             this.conn = new jsforce.Connection({
-                instanceUrl,
-                accessToken,
+                instanceUrl: auth.instance_url,
+                accessToken: auth.access_token,
             });
         } // else throw an error!
     }
