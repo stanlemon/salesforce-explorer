@@ -72,9 +72,13 @@ function loadApplication(app, options, accessToken, instanceUrl, refreshToken) {
 
 function runApplication(options) {
     const app = new electron.BrowserWindow({
-        width: 500,
-        height: 700,
         titleBarStyle: 'hidden-inset',
+    });
+
+    electron.ipcMain.on('logout', (event) => {
+        console.log('Logging out...');
+        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
+        authApplication(app, options);
     });
 
     const password = keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
@@ -93,7 +97,6 @@ function runApplication(options) {
 
     conn.identity((error, response) => {
         if (error) {
-            console.log(error);
             authApplication(app, options);
         } else {
             loadApplication(app, options, access_token, instance_url, refresh_token);
@@ -102,6 +105,8 @@ function runApplication(options) {
 }
 
 function authApplication(app, options) {
+    app.setSize(500, 700);
+
     const oauthUrl = options.authorizeUrl + '?' + querystring.stringify(
         Object.assign(
             {}, 

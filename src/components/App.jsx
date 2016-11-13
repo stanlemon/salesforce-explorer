@@ -6,7 +6,7 @@ const { Link } = require('react-router');
 const { Header } = require('./lds');
 const querystring = require('querystring');
 const keytar = require('keytar');
-
+const { ipcRenderer } = require('electron')
 const KEYTAR_SERVICE = 'Salesforce Explorer';
 const KEYTAR_ACCOUNT = 'Oauth';
 
@@ -25,10 +25,14 @@ module.exports = class App extends React.Component {
     }
 
     logout() {
+        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
+
         this.conn.logout((error) => {
+            ipcRenderer.send('logout', '');
+
             if (error) {
                 console.error(err);
-            }
+            } 
         });
     }
 
