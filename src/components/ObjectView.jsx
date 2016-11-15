@@ -27,22 +27,25 @@ module.exports = class ObjectView extends React.Component {
     render() {
         if (this.state && this.state.error) {
             return (
-                <div>{this.state.error}</div>
+                <div className="padding">{this.state.error}</div>
             );
         }
 
         if (!this.state || !this.state.object) {
             return (
-                <div><em>Loading object...</em></div>
+                <div className="padding"><em>Loading object...</em></div>
             );
         }
 
         return (
             <div>
-                <Header title={this.state.object.label} />
-                <p>
-                    <Link to={`/records/${this.state.object.name}`}>View Records</Link>
-                </p>
+                <Header title={this.state.object.label} subtitle="Object" menu={[
+                    {
+                        label: 'View Records',
+                        link: `/records/${this.state.object.name}`,
+                    },
+                ]} />
+
                 <DataTable headers={['label', 'name', 'type', 'custom', ]} records={this.state.object.fields} />
             </div>
         );

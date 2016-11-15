@@ -13,13 +13,11 @@ const KEYTAR_ACCOUNT = 'Oauth';
 
 function refreshOauth(options, refreshToken) {
     setInterval(() => {
-        console.log('Refreshing access token...');
-
         const postData = querystring.stringify({
             grant_type: 'refresh_token',
             client_id: options.client_id,
             client_secret: options.client_secret,
-            refresh_token: refreshToken
+            refresh_token: refreshToken,
         });
 
         const accessTokenUrl = url.parse(options.accessTokenUrl);
@@ -75,12 +73,6 @@ function runApplication(options) {
         titleBarStyle: 'hidden-inset',
     });
 
-    electron.ipcMain.on('logout', (event) => {
-        console.log('Logging out...');
-        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
-        authApplication(app, options);
-    });
-
     const password = keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
 
     if (password === null) {
@@ -102,6 +94,16 @@ function runApplication(options) {
             loadApplication(app, options, access_token, instance_url, refresh_token);
         }
     });
+
+    electron.ipcMain.on('logout', () => {
+        conn.logout(() => {
+            keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
+
+            app.webContents.session.clearStorageData();
+
+            authApplication(app, options);
+        });
+    });
 }
 
 function authApplication(app, options) {
@@ -114,7 +116,7 @@ function authApplication(app, options) {
             {
                 client_id: options.client_id,
                 scope: options.scopes.join(" "),
-                redirect_uri: options.redirect_uri
+                redirect_uri: options.redirect_uri,
             }
         )
     );
@@ -133,7 +135,7 @@ function authApplication(app, options) {
         const urlQueryPieces = querystring.parse(urlPieces.query);
 
         if (!urlQueryPieces.code) {
-            alert('A problem occurred! There was no code in the OAuth response.');
+            alert('A problem occurred! There was no code paramter in the OAuth redirect.');
             return;
         }
 

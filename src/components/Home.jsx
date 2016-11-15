@@ -9,7 +9,7 @@ module.exports = class Home extends React.Component {
         return (
             <div>
                 <Header title="Salesforce Exploer" />
-                <div style={{ padding: 10 }}>
+                <div className="padding">
                     <p>Welcome...</p>
                 </div>
             </div>

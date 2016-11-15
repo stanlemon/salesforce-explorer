@@ -43,26 +43,27 @@ module.exports = class PushTopicView extends React.Component {
     render() {
         if (!this.state || !this.state.pushTopic) {
             return (
-                <div><em>Loading...</em></div>
+                <div className="padding"><em>Loading...</em></div>
             );
         }
 
         if (this.state && this.state.error) {
             return (
-                <div>{this.state.error}</div>
+                <div className="padding">{this.state.error}</div>
             );
         }
 
-        const title = `PushTopic: ${this.state.pushTopic.Name}`;
-
         return (
             <div>
-                <Header title={title} />
-                <p>New events will automatically appear below as they are pushed to this topic.</p>
+                <Header title={this.state.pushTopic.Name} subtitle="Push Topic" />
 
-                {this.state.messages.map(message =>
-                    <pre key={message.event.replayId}>{JSON.stringify(message, null, 2) + ''}</pre> 
-                )}
+                <div className="padding">
+                    <p>New events will automatically appear below as they are pushed to this topic.</p>
+
+                    {this.state.messages.map(message =>
+                        <pre key={message.event.replayId}>{JSON.stringify(message, null, 2) + ''}</pre> 
+                    )}
+                </div>
             </div>
         );
     }

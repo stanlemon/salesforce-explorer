@@ -26,7 +26,7 @@ module.exports = class RecordList extends React.Component {
     render() {
         if (!this.state || !this.state.records) {
             return (
-                <div><em>Loading...</em></div>
+                <div className="padding"><em>Loading...</em></div>
             );
         }
 
@@ -38,7 +38,7 @@ module.exports = class RecordList extends React.Component {
 
         return (
             <div>
-                <Header title={name} />
+                <Header title={name} subtitle="Records" />
                 <DataTable
                     headers={headers}
                     records={this.state.records}

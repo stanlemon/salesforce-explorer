@@ -25,13 +25,13 @@ module.exports = class PushTopicList extends React.Component {
     render() {
         if (!this.state || !this.state.records) {
             return (
-                <div><em>Loading...</em></div>
+                <div className="padding"><em>Loading...</em></div>
             );
         }
 
         if (this.state && this.state.error) {
             return (
-                <div>{this.state.error}</div>
+                <div className="padding">{this.state.error}</div>
             );
         }
 

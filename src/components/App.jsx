@@ -3,13 +3,14 @@
 const jsforce = require('jsforce');
 const React = require('react');
 const { Link } = require('react-router');
-const { Header } = require('./lds');
-const querystring = require('querystring');
 const keytar = require('keytar');
-const { ipcRenderer } = require('electron')
+const { ipcRenderer } = require('electron');
+const GlobalNavigation = require('./lds/GlobalNavigation');
+
+const config = require('../../config.json');
+
 const KEYTAR_SERVICE = 'Salesforce Explorer';
 const KEYTAR_ACCOUNT = 'Oauth';
-
 
 module.exports = class App extends React.Component {
 
@@ -18,33 +19,55 @@ module.exports = class App extends React.Component {
 
         if (auth !== null) {
             this.conn = new jsforce.Connection({
+                oauth2: {
+                    clientId: config.client_id,
+                    clientSecret: config.client_secret,
+                    redirectUri: config.redirect_uri,
+                },
                 instanceUrl: auth.instance_url,
                 accessToken: auth.access_token,
+                refreshToken: auth.refresh_token,
             });
         } // else throw an error!
     }
 
     logout() {
-        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
-
-        this.conn.logout((error) => {
-            ipcRenderer.send('logout', '');
-
-            if (error) {
-                console.error(err);
-            } 
-        });
+        ipcRenderer.send('logout', '');
     }
 
     render() {
         return (
             <div>
-                <div className="titlebar">
-                    <span style={{ color: '#fff' }} className="slds-icon_container slds-icon-standard-default" />
-                    <Link to={`/`}>Home</Link> | <Link to={`/objects`}>Objects</Link> | <Link to={`/push`}>Push Topics</Link> | <a onClick={this.logout.bind(this)}>Logout</a>
+                <div className="titlebar" />
+
+                <div className="menubar">
+                    <GlobalNavigation appName="Explorer" menu={[
+                        {
+                            label: 'Home',
+                            link: '/',
+                            handler: () => {},
+                        },
+                        {
+                            label: 'Object',
+                            link: '/objects',
+                            handler: () => {},
+                        },
+                        {
+                            label: 'Push Topics',
+                            link: '/push',
+                            handler: () => {},
+                        },
+                        {
+                            label: 'Logout',
+                            link: '',
+                            handler: () => {
+                                this.logout();
+                            }
+                        }
+                    ]} />
                 </div>
 
-                <div>
+                <div className="content">
                     {React.cloneElement(
                         this.props.children,
                         Object.assign({}, this.props, { conn: this.conn })

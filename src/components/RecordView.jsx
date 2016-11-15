@@ -30,7 +30,7 @@ module.exports = class RecordView extends React.Component {
     render() {
         if (!this.state) {
             return (
-                <div><em>Loading...</em></div>
+                <div className="padding"><em>Loading...</em></div>
             );
         }
 
@@ -40,7 +40,7 @@ module.exports = class RecordView extends React.Component {
 
         return (
             <div>
-                <Header title={this.state.record.Name} />
+                <Header title={this.state.record.Name} subtitle="Record" />
                 <Panel>
                     <PanelSection title="Details">
                         {keys.map((key) =>

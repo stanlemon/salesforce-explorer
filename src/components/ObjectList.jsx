@@ -31,13 +31,13 @@ module.exports = class ObjectList extends React.Component {
 
         if (!this.state || !this.state.objects) {
             return (
-                <div><em>Loading objects...</em></div>
+                <div className="padding"><em>Loading objects...</em></div>
             );
         }
 
         return (
             <div>
-                <Header title="Objects"/>
+                <Header title="Objects" />
                 <DataTable
                     headers={['keyPrefix', 'name', 'label', 'custom']}
                     records={this.state.objects}
