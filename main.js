@@ -41,7 +41,11 @@ function refreshOauth(options, refreshToken) {
             response.on('end', () => {
                 const data = JSON.parse(result);
 
-                keytar.replacePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, result);
+                const oldPassword = JSON.parse(keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT));
+
+                const newPassword = Object.assign({}, oldPassword, data);
+
+                keytar.replacePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(newPassword));
             });
             response.on('error', (err) => {
                 console.error('OAUTH REQUEST ERROR: ' + err.message);
@@ -49,7 +53,7 @@ function refreshOauth(options, refreshToken) {
         });
         request.write(postData);
         request.end();
-    }, 60000); // Refresh every 10 seconds
+    }, 10000); // Refresh every 10 seconds
 }
 
 function loadApplication(app, options, accessToken, instanceUrl, refreshToken) {
@@ -83,8 +87,14 @@ function runApplication(options) {
     const { access_token, instance_url, refresh_token } = JSON.parse(password);
 
     const conn = new jsforce.Connection({
+        oauth2: {
+            clientId: config.client_id,
+            clientSecret: config.client_secret,
+            redirectUri: config.redirect_uri,
+        },
         instanceUrl: instance_url,
         accessToken: access_token,
+        refreshToken: refresh_token,
     });
 
     conn.identity((error, response) => {
