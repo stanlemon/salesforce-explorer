@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const React = require('react');
 const { Header, Panel, PanelSection, FormElement } = require('./lds');

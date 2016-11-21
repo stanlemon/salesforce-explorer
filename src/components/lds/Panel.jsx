@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const { omit } = require('react');
 const React = require('react');

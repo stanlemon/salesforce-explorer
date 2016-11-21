@@ -24,8 +24,10 @@ const ObjectList = require('./components/ObjectList');
 const ObjectView = require('./components/ObjectView');
 const RecordList = require('./components/RecordList');
 const RecordView = require('./components/RecordView');
+const SoqlView = require('./components/SoqlView');
 const PushTopicList = require('./components/PushTopicList');
 const PushTopicView = require('./components/PushTopicView');
+
 
 const Root = connect(state => state, dispatch => {
     return { actions: bindActionCreators(actions, dispatch) };
@@ -42,6 +44,7 @@ ReactDOM.render(
                 <Route path="/objects/:name" component={ObjectView}/>
                 <Route path="/records/:name" component={RecordList}/>
                 <Route path="/records/:name/:id" component={RecordView}/>
+                <Route path="/soql" component={SoqlView}/>
                 <Route path="/push" component={PushTopicList}/>
                 <Route path="/push/:id" component={PushTopicView}/>
             </Route>

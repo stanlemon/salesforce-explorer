@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const React = require('react');
 const { Link } = require('react-router');
@@ -28,7 +28,7 @@ class Header extends React.Component {
                             const handler = item.handler === undefined ? () => {} : item.handler;
 
                             return (
-                                <div className="slds-button-group" role="group">
+                                <div key={item.label} className="slds-button-group" role="group">
                                     <Link className="slds-button slds-button--neutral" to={item.link}>
                                         {item.label}
                                     </Link>

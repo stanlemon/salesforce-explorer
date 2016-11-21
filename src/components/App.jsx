@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const jsforce = require('jsforce');
 const React = require('react');
@@ -50,6 +50,11 @@ module.exports = class App extends React.Component {
                         {
                             label: 'Object',
                             link: '/objects',
+                            handler: () => {},
+                        },
+                        {
+                            label: 'SOQL',
+                            link: '/soql',
                             handler: () => {},
                         },
                         {
