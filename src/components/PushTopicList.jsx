@@ -7,7 +7,19 @@ const { Header, DataTable } = require('./lds');
 module.exports = class PushTopicList extends React.Component {
 
     componentWillMount() {
-        this.props.conn.sobject("PushTopic").find().execute((error, records) => {
+        this.loadPushTopics(this.props);
+    }
+
+    componentWillReceiveProps(props) {
+        this.loadPushTopics(props);
+    }
+    
+    loadPushTopics(props) {
+        const { conn } = props;
+
+        if (!conn) return;
+
+        conn.sobject("PushTopic").find().execute((error, records) => {
             if (error) {
                 console.error(error);
                 this.setState({

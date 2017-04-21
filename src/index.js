@@ -10,7 +10,7 @@ const { syncHistoryWithStore } = require('react-router-redux');
 const actions = require('./actions');
 const reducer = require('./reducer/');
 
-const localForage = require('localForage');
+const localForage = require('localforage');
 const { persistStore, autoRehydrate } = require('redux-persist');
 
 const store = createStore(reducer, undefined, autoRehydrate());

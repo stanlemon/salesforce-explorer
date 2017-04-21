@@ -7,7 +7,19 @@ const { Header, DataTable } = require('./lds');
 module.exports = class ObjectList extends React.Component {
 
     componentWillMount() {
-        this.props.conn.describeGlobal((error, res) => {
+        this.loadDescribeGlobal(this.props);
+    }
+
+    componentWillReceiveProps(props) {
+        this.loadDescribeGlobal(props);
+    }
+
+    loadDescribeGlobal(props) {
+        const { conn } = props;
+
+        if (!conn) return;
+
+        conn.describeGlobal((error, res) => {
             if (error) {
                 console.error(error);
                 this.setState({

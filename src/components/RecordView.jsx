@@ -6,9 +6,20 @@ const { Header, Panel, PanelSection, FormElement } = require('./lds');
 module.exports = class RecordView extends React.Component {
 
     componentWillMount() {
-        const { name, id } = this.props.params;
+        this.loadSObject(this.props);
+    }
 
-        this.props.conn.sobject(name)
+    componentWillReceiveProps(props) {
+        this.loadSObject(props);
+    }
+
+    loadSObject(props) {
+        const { conn, params } = props;
+        const { name, id } = params;
+
+        if (!conn) return;
+
+        conn.sobject(name)
             .select('*')
             .where({ Id: id })
             .limit(1)

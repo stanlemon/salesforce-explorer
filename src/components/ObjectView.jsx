@@ -6,10 +6,22 @@ const { Header, DataTable } = require('./lds');
 
 module.exports = class ObjectView extends React.Component {
 
-    componentWillMount() {
-        const { name } = this.props.params;
 
-        this.props.conn.describe(name, (error, object) => {
+    componentWillMount() {
+        this.loadDescribe(this.props);
+    }
+
+    componentWillReceiveProps(props) {
+        this.loadDescribe(props);
+    }
+
+    loadDescribe(props) {
+        const { conn , params } = props;
+        const { name } = params;
+
+        if (!conn) return;
+
+        conn.describe(name, (error, object) => {
             if (error) {
                 console.error(error);
                 this.setState({

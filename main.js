@@ -20,7 +20,7 @@ function refreshOauth(options, refreshToken) {
             refresh_token: refreshToken,
         });
 
-        const accessTokenUrl = url.parse(options.accessTokenUrl);
+        const accessTokenUrl = url.parse(options.access_token_url);
 
         const post = {
             hostname: accessTokenUrl.hostname,
@@ -33,26 +33,34 @@ function refreshOauth(options, refreshToken) {
             },
         };
 
-        const request = https.request(post, (response) => {
-            let result = '';
-            response.on('data', (data) => {
-                result += data;
-            });
-            response.on('end', () => {
-                const data = JSON.parse(result);
+        try {
+            const request = https.request(post, (response) => {
+                let result = '';
+                response.on('data', (data) => {
+                    result += data;
+                });
+                response.on('end', () => {
+                    const data = JSON.parse(result);
 
-                const oldPassword = JSON.parse(keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT));
+                    keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then((result) => {
+                        return JSON.parse(result);
+                    }).then((oldPassword) => {
+                        const newPassword = Object.assign({}, oldPassword, data);
 
-                const newPassword = Object.assign({}, oldPassword, data);
-
-                keytar.replacePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(newPassword));
+                        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then(() => {
+                            keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(newPassword));
+                        });
+                    })
+                });
+                response.on('error', (err) => {
+                    console.error('OAUTH REQUEST ERROR: ' + err.message);
+                });
             });
-            response.on('error', (err) => {
-                console.error('OAUTH REQUEST ERROR: ' + err.message);
-            });
-        });
-        request.write(postData);
-        request.end();
+            request.write(postData);
+            request.end();
+        } catch (e) {
+            console.error(e);
+        }
     }, 10000); // Refresh every 10 seconds
 }
 
@@ -77,14 +85,25 @@ function runApplication(options) {
         titleBarStyle: 'hidden-inset',
     });
 
+    const menu = electron.Menu.buildFromTemplate(menuTemplate);
+    electron.Menu.setApplicationMenu(menu);
+
     const password = keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
 
-    if (password === null) {
+    let passwordData;
+    
+    try {
+        passwordData = JSON.parse(password);
+    } catch (e) {
+        // Treat it like we don't have the password...
+    }
+
+    if (password == null || passwordData == null) {
         authApplication(app, options);
         return;
     }
 
-    const { access_token, instance_url, refresh_token } = JSON.parse(password);
+    const { access_token, instance_url, refresh_token } = passwordData;
 
     const conn = new jsforce.Connection({
         oauth2: {
@@ -119,7 +138,8 @@ function runApplication(options) {
 function authApplication(app, options) {
     app.setSize(500, 700);
 
-    const oauthUrl = options.authorizeUrl + '?' + querystring.stringify(
+    // Check for valid URL
+    const oauthUrl = options.authorize_url + '?' + querystring.stringify(
         Object.assign(
             {}, 
             options.extra,
@@ -157,7 +177,7 @@ function authApplication(app, options) {
             code: urlQueryPieces.code,
         });
 
-        const accessTokenUrl = url.parse(options.accessTokenUrl);
+        const accessTokenUrl = url.parse(options.access_token_url);
 
         const post = {
             hostname: accessTokenUrl.hostname,
@@ -178,7 +198,9 @@ function authApplication(app, options) {
             response.on('end', () => {
                 const data = JSON.parse(result);
 
-                keytar.replacePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, result);
+                keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then(() => {
+                    keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, result);
+                });
 
                 loadApplication(app, options, data.access_token, data.instance_url, data.refresh_token);
             });
@@ -203,3 +225,89 @@ electron.app.on('ready', runApplication.bind(null, config));
 electron.app.on('window-all-closed', () => {
     electron.app.quit();
 });
+
+const menuTemplate = [
+  {
+    label: 'Edit',
+    submenu: [
+      {role: 'undo'},
+      {role: 'redo'},
+      {type: 'separator'},
+      {role: 'cut'},
+      {role: 'copy'},
+      {role: 'paste'},
+      {role: 'pasteandmatchstyle'},
+      {role: 'delete'},
+      {role: 'selectall'}
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {role: 'reload'},
+      {role: 'forcereload'},
+      {role: 'toggledevtools'},
+      {type: 'separator'},
+      {role: 'resetzoom'},
+      {role: 'zoomin'},
+      {role: 'zoomout'},
+      {type: 'separator'},
+      {role: 'togglefullscreen'}
+    ]
+  },
+  {
+    role: 'window',
+    submenu: [
+      {role: 'minimize'},
+      {role: 'close'}
+    ]
+  },
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'Learn More',
+        // TODO: Update
+        click () { electron.shell.openExternal('https://electron.atom.io') }
+      }
+    ]
+  }
+]
+
+if (process.platform === 'darwin') {
+  menuTemplate.unshift({
+    label: electron.app.getName(),
+    submenu: [
+      {role: 'about'},
+      {type: 'separator'},
+      {role: 'services', submenu: []},
+      {type: 'separator'},
+      {role: 'hide'},
+      {role: 'hideothers'},
+      {role: 'unhide'},
+      {type: 'separator'},
+      {role: 'quit'}
+    ]
+  })
+
+  // Edit menu
+  menuTemplate[1].submenu.push(
+    {type: 'separator'},
+    {
+      label: 'Speech',
+      submenu: [
+        {role: 'startspeaking'},
+        {role: 'stopspeaking'}
+      ]
+    }
+  )
+
+  // Window menu
+  menuTemplate[3].submenu = [
+    {role: 'close'},
+    {role: 'minimize'},
+    {role: 'zoom'},
+    {type: 'separator'},
+    {role: 'front'}
+  ]
+}

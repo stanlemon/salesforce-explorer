@@ -6,9 +6,20 @@ const { Header, DataTable } = require('./lds');
 module.exports = class RecordList extends React.Component {
 
     componentWillMount() {
-        const { name } = this.props.params;
+        this.loadSObjects(this.props);
+    }
 
-        this.props.conn.sobject(name).find().execute((error, records) => {
+    componentWillReceiveProps(props) {
+        this.loadSObjects(props);
+    }
+
+    loadSObjects(props) {
+        const { conn, params } = props;
+        const { name } = params;
+
+        if (!conn) return;
+
+        conn.sobject(name).find().execute((error, records) => {
             if (error) {
                 console.error(error);
                 this.setState({

@@ -14,21 +14,32 @@ const KEYTAR_ACCOUNT = 'Oauth';
 
 module.exports = class App extends React.Component {
 
-    componentWillMount() {
-        const auth = JSON.parse(keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT));
+    constructor(props) {
+        super(props);
+        this.state = {
+            conn: null
+        };
+    }
 
-        if (auth !== null) {
-            this.conn = new jsforce.Connection({
-                oauth2: {
-                    clientId: config.client_id,
-                    clientSecret: config.client_secret,
-                    redirectUri: config.redirect_uri,
-                },
-                instanceUrl: auth.instance_url,
-                accessToken: auth.access_token,
-                refreshToken: auth.refresh_token,
-            });
-        } // else throw an error!
+    componentWillMount() {
+        keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then((result) => {
+            return JSON.parse(result);
+        }).then((auth) => {
+            if (auth !== null) {
+                this.setState({
+                    conn: new jsforce.Connection({
+                        oauth2: {
+                            clientId: config.client_id,
+                            clientSecret: config.client_secret,
+                            redirectUri: config.redirect_uri,
+                        },
+                        instanceUrl: auth.instance_url,
+                        accessToken: auth.access_token,
+                        refreshToken: auth.refresh_token,
+                    })
+                });
+            } // else throw an error!
+        });
     }
 
     logout() {
@@ -38,7 +49,7 @@ module.exports = class App extends React.Component {
     render() {
         return (
             <div>
-                <div className="titlebar" />
+                <div className="titlebar" style={{ "WebkitAppRegion": "drag" }} />
 
                 <div className="menubar">
                     <GlobalNavigation appName="Explorer" menu={[
@@ -75,7 +86,7 @@ module.exports = class App extends React.Component {
                 <div className="content">
                     {React.cloneElement(
                         this.props.children,
-                        Object.assign({}, this.props, { conn: this.conn })
+                        Object.assign({}, this.props, { conn: this.state.conn })
                     )}
                 </div>
             </div>

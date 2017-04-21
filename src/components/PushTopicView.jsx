@@ -15,9 +15,20 @@ module.exports = class PushTopicView extends React.Component {
     }
 
     componentWillMount() {
-        const { id } = this.props.params;
+        this.loadPushTopic(this.props);
+    }
 
-        this.props.conn.sobject("PushTopic").retrieve(id, (error, pushTopic) => {
+    componentWillReceiveProps(props) {
+        this.loadPushTopic(props);
+    }
+    
+    loadPushTopic(props) {
+        const { conn, params } = props;
+        const { id } = params;
+
+        if (!conn) return;
+
+        conn.sobject("PushTopic").retrieve(id, (error, pushTopic) => {
             if (error) {
                 console.error(error);
                 this.setState({
@@ -30,7 +41,7 @@ module.exports = class PushTopicView extends React.Component {
                 pushTopic
             });
 
-            this.props.conn.streaming.topic(pushTopic.Name).subscribe((message) => {
+            conn.streaming.topic(pushTopic.Name).subscribe((message) => {
                 console.log(message);
 
                 this.setState({
