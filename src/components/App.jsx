@@ -43,7 +43,8 @@ module.exports = class App extends React.Component {
     }
 
     logout() {
-        ipcRenderer.send('logout', '');
+        console.log('Attempting to logout...');
+        ipcRenderer.send('salesforce-logout', 'logout');
     }
 
     render() {

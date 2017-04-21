@@ -3,9 +3,9 @@
 const electron = require('electron');
 const keytar = require('keytar');
 const querystring = require('querystring');
-const https = require('https');
 const url = require('url');
-const jsforce = require('jsforce');
+const fetch = require('node-fetch');
+
 const config = require('./config.json');
 
 const KEYTAR_SERVICE = 'Salesforce Explorer';
@@ -20,48 +20,29 @@ function refreshOauth(options, refreshToken) {
             refresh_token: refreshToken,
         });
 
-        const accessTokenUrl = url.parse(options.access_token_url);
-
-        const post = {
-            hostname: accessTokenUrl.hostname,
-            path: accessTokenUrl.path,
+        fetch(options.access_token_url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postData.length,
                 'Accept': 'application/json',
             },
-        };
-
-        try {
-            const request = https.request(post, (response) => {
-                let result = '';
-                response.on('data', (data) => {
-                    result += data;
-                });
-                response.on('end', () => {
-                    const data = JSON.parse(result);
-
-                    keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then((result) => {
-                        return JSON.parse(result);
-                    }).then((oldPassword) => {
-                        const newPassword = Object.assign({}, oldPassword, data);
+            body: postData
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+                    .then((password) => JSON.parse(password))
+                    .then((oldPassword) => {
+                        const newPassword = Object.assign({}, oldPassword, result);
 
                         keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then(() => {
                             keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(newPassword));
                         });
                     })
-                });
-                response.on('error', (err) => {
-                    console.error('OAUTH REQUEST ERROR: ' + err.message);
-                });
-            });
-            request.write(postData);
-            request.end();
-        } catch (e) {
-            console.error(e);
-        }
-    }, 10000); // Refresh every 10 seconds
+            })
+        ;
+    }, 60000); // Refresh every 60 seconds
 }
 
 function loadApplication(app, options, accessToken, instanceUrl, refreshToken) {
@@ -88,51 +69,68 @@ function runApplication(options) {
     const menu = electron.Menu.buildFromTemplate(menuTemplate);
     electron.Menu.setApplicationMenu(menu);
 
-    const password = keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
+    electron.ipcMain.on('salesforce-logout', (event, arg) => {
+        console.log('Logging out...');
 
-    let passwordData;
-    
-    try {
-        passwordData = JSON.parse(password);
-    } catch (e) {
-        // Treat it like we don't have the password...
-    }
+        keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+            .then((result) => JSON.parse(result))
+            .then((password) => {
+                const { access_token } = password;
 
-    if (password == null || passwordData == null) {
-        authApplication(app, options);
-        return;
-    }
+                const accessTokenUrl = url.parse(options.access_token_url);
+                const revokeTokenUrl = url.format({
+                    protocol: accessTokenUrl.protocol,
+                    hostname: accessTokenUrl.hostname,
+                    pathname: '/services/oauth2/revoke',
+                    query: {
+                        token: access_token,
+                        format: 'json'
+                    }
+                });
 
-    const { access_token, instance_url, refresh_token } = passwordData;
+                console.log(revokeTokenUrl);
 
-    const conn = new jsforce.Connection({
-        oauth2: {
-            clientId: config.client_id,
-            clientSecret: config.client_secret,
-            redirectUri: config.redirect_uri,
-        },
-        instanceUrl: instance_url,
-        accessToken: access_token,
-        refreshToken: refresh_token,
+                fetch(revokeTokenUrl)
+                    .then((response) => {
+                        if (response.status != 200) {
+                            return;
+                        }
+
+                        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+                            .then(() => {
+                                app.webContents.session.clearStorageData();
+
+                                authApplication(app, options);
+                            });
+                    });
+                ;
+            })
+        ;
     });
 
-    conn.identity((error, response) => {
-        if (error) {
-            authApplication(app, options);
-        } else {
-            loadApplication(app, options, access_token, instance_url, refresh_token);
-        }
-    });
+    keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+        .then((result) => JSON.parse(result))
+        .then((password) => {
+            if (password == null) {
+                authApplication(app, options);
+                return;
+            }
 
-    electron.ipcMain.on('logout', () => {
-        conn.logout(() => {
-            keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT);
+            const { id, access_token, instance_url, refresh_token } = password;
 
-            app.webContents.session.clearStorageData();
+            const url = id + '?' + querystring.stringify({ access_token: access_token, format: "json" });
 
-            authApplication(app, options);
-        });
-    });
+            fetch(url)
+                .then((response) => response.json())
+                .then((user) => {
+                    loadApplication(app, options, access_token, instance_url, refresh_token);
+                })
+                .catch((e) => {
+                    authApplication(app, options);
+                })
+            ;
+        })
+    ;
 }
 
 function authApplication(app, options) {
@@ -177,39 +175,24 @@ function authApplication(app, options) {
             code: urlQueryPieces.code,
         });
 
-        const accessTokenUrl = url.parse(options.access_token_url);
-
-        const post = {
-            hostname: accessTokenUrl.hostname,
-            path: accessTokenUrl.path,
+        fetch(options.access_token_url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postData.length,
                 'Accept': 'application/json',
             },
-        };
-
-        const request = https.request(post, (response) => {
-            let result = '';
-            response.on('data', (data) => {
-                result += data;
-            });
-            response.on('end', () => {
-                const data = JSON.parse(result);
-
+            body: postData
+        })
+            .then((response) => response.json())
+            .then((result) => {
                 keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then(() => {
-                    keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, result);
+                    keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(result));
                 });
 
-                loadApplication(app, options, data.access_token, data.instance_url, data.refresh_token);
-            });
-            response.on('error', (err) => {
-                console.error('OAUTH REQUEST ERROR: ' + err.message);
-            });
-        });
-        request.write(postData);
-        request.end();
+                loadApplication(app, options, result.access_token, result.instance_url, result.refresh_token);
+            })
+        ;
     });
 }
 
