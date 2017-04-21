@@ -88,8 +88,6 @@ function runApplication(options) {
                     }
                 });
 
-                console.log(revokeTokenUrl);
-
                 fetch(revokeTokenUrl)
                     .then((response) => {
                         if (response.status != 200) {
