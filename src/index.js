@@ -7,6 +7,10 @@ import keytar from 'keytar';
 import querystring from 'querystring';
 import url from 'url';
 import fetch from 'node-fetch';
+import PouchDB from 'pouchdb';
+import { debounce } from 'lodash';
+
+PouchDB.plugin(require('pouchdb-adapter-node-websql'));
 
 const config = require('./config.json');
 
@@ -17,11 +21,83 @@ if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
 const KEYTAR_SERVICE = 'Salesforce Explorer';
 const KEYTAR_ACCOUNT = 'Oauth';
 
+const userData = electron.app.getPath('userData');
+
+console.log('user data is stored at ' + userData);
+
+const db = new PouchDB(userData + '/SalesforceExplorer.db', {
+    adapter: 'websql',
+});
+
+function getWindow() {
+    return db
+        .get('window')
+        .then(result => {
+            return {
+                height: result.height,
+                width: result.width,
+                x: result.x,
+                y: result.y,
+            };
+        })
+        .catch(err => {
+            console.log(
+                'An error has occurred getting window information',
+                err
+            );
+        });
+}
+
+function setWindow(width, height, x, y) {
+    return db
+        .get('window')
+        .then(doc => {
+            doc.height = height;
+            doc.width = width;
+            doc.x = x;
+            doc.y = y;
+
+            return db.put(doc);
+        })
+        .catch(err => {
+            if (err.status === 404) {
+                console.log(
+                    'Did not find window document, creating a new one.'
+                );
+                db.post({
+                    _id: 'window',
+                    height,
+                    width,
+                    x,
+                    y,
+                }).catch(err => {
+                    console.log(
+                        'An error occurred while trying to post the window document.',
+                        err
+                    );
+                });
+            }
+
+            console.log('An error has occurred', err);
+        });
+}
+
 function loadApplication(app, options, accessToken, instanceUrl, refreshToken) {
     console.log('loading application');
 
-    console.log('setting window size');
-    app.setSize(800, 600);
+    getWindow().then(window => {
+        console.log('setting window size and position', window);
+
+        const { width, height, x, y } = window;
+
+        if (window) {
+            app.setSize(width, height);
+            app.setPosition(x, y);
+        } else {
+            app.setSize(800, 600);
+            app.center();
+        }
+    });
 
     const url = `file://${__dirname}/index.html`;
 
@@ -45,6 +121,23 @@ async function runApplication(options) {
             mode: 'undocked',
         });
     }
+
+    // These events fire frequently when active resizing/moving is occurring and we want to debounce them as they come in
+    const updateWindow = debounce(e => {
+        if (app.isOnAuth) {
+            return;
+        }
+
+        const position = app.getPosition();
+        const size = app.getSize();
+
+        console.log('setting window size and position', size, position);
+
+        setWindow(size[0], size[1], position[0], position[1]);
+    }, 200);
+
+    app.on('moved', updateWindow);
+    app.on('resize', updateWindow);
 
     const menu = electron.Menu.buildFromTemplate(menuTemplate);
     electron.Menu.setApplicationMenu(menu);
@@ -122,7 +215,10 @@ async function runApplication(options) {
 }
 
 function authApplication(app, options) {
+    app.isOnAuth = true;
+
     app.setSize(500, 700);
+    app.center();
 
     // Construct the URL for OAuth
     const oauthUrl =
@@ -141,7 +237,7 @@ function authApplication(app, options) {
     app.show();
     app.focus();
 
-    app.webContents.on('will-navigate', (event, browserUrl) => {
+    app.webContents.on('will-navigate', async (event, browserUrl) => {
         console.log('Navigating to ' + browserUrl);
 
         // Not the URL we are looking for...
@@ -164,7 +260,9 @@ function authApplication(app, options) {
             JSON.stringify(urlQueryPieces)
         );
 
-        loadApplication(
+        app.isOnAuth = false;
+
+        await loadApplication(
             app,
             options,
             urlQueryPieces.access_token,

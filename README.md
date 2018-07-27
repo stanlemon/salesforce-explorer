@@ -1,6 +1,8 @@
 # Salesforce Explorer
 
-This is an electron app using the jsforce library to explore a Salesforce instance.  Think of it like Workbench, but for your desktop.
+This is an [electron](https://electronjs.org/) app using the [jsforce](https://jsforce.github.io/) library to explore a [Salesforce org](https://developer.salesforce.com/signup).  Think of it like [Workbench](https://workbench.developerforce.com/), but for your desktop.  This is a prototype and a work in progress.
+
+![alt text](./salesforce-explorer.png "Salesforce Explorer")
 
 ## Getting Started
 
