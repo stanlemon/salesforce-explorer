@@ -5,6 +5,8 @@ class Header extends React.Component {
     render() {
         const { title, subtitle, menu } = this.props;
 
+        // TODO: Header should be fixed at the top of the screen
+
         return (
             <div className="slds-page-header" role="banner">
                 <div className="slds-grid">

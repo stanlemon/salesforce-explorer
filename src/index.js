@@ -1,4 +1,8 @@
 import electron from 'electron';
+import installExtension, {
+    REACT_DEVELOPER_TOOLS,
+} from 'electron-devtools-installer';
+import { enableLiveReload } from 'electron-compile';
 import keytar from 'keytar';
 import querystring from 'querystring';
 import url from 'url';
@@ -6,71 +10,41 @@ import fetch from 'node-fetch';
 
 const config = require('./config.json');
 
+const isDevMode = process.execPath.match(/[\\/]electron/);
+
+if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
+
 const KEYTAR_SERVICE = 'Salesforce Explorer';
 const KEYTAR_ACCOUNT = 'Oauth';
 
-function refreshOauth(options, refreshToken) {
-    setInterval(() => {
-        const postData = querystring.stringify({
-            grant_type: 'refresh_token',
-            client_id: options.client_id,
-            client_secret: options.client_secret,
-            refresh_token: refreshToken,
-        });
-
-        fetch(options.access_token_url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Content-Length': postData.length,
-                Accept: 'application/json',
-            },
-            body: postData,
-        })
-            .then(response => response.json())
-            .then(result => {
-                keytar
-                    .getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-                    .then(password => JSON.parse(password))
-                    .then(oldPassword => {
-                        const newPassword = Object.assign(
-                            {},
-                            oldPassword,
-                            result
-                        );
-
-                        keytar
-                            .deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-                            .then(() => {
-                                keytar.setPassword(
-                                    KEYTAR_SERVICE,
-                                    KEYTAR_ACCOUNT,
-                                    JSON.stringify(newPassword)
-                                );
-                            });
-                    });
-            });
-    }, 60000); // Refresh every 60 seconds
-}
-
 function loadApplication(app, options, accessToken, instanceUrl, refreshToken) {
+    console.log('loading application');
+
+    console.log('setting window size');
     app.setSize(800, 600);
-    app.loadURL(`file://${__dirname}/src/index.html`);
 
-    if (process.env.NODE_ENV === 'development') {
-        app.webContents.openDevTools();
-    }
+    const url = `file://${__dirname}/index.html`;
 
-    refreshOauth(options, refreshToken);
+    console.log('loading url ' + url);
+
+    app.loadURL(url);
 
     app.show();
     app.focus();
 }
 
-function runApplication(options) {
+async function runApplication(options) {
     const app = new electron.BrowserWindow({
         titleBarStyle: 'hidden-inset',
     });
+
+    if (isDevMode) {
+        await installExtension(REACT_DEVELOPER_TOOLS);
+
+        app.webContents.openDevTools({
+            mode: 'undocked',
+        });
+    }
 
     const menu = electron.Menu.buildFromTemplate(menuTemplate);
     electron.Menu.setApplicationMenu(menu);
@@ -120,7 +94,7 @@ function runApplication(options) {
                 return;
             }
 
-            const { id, access_token, instance_url, refresh_token } = password;
+            const { id, access_token, instance_url } = password;
 
             const url =
                 id +
@@ -138,7 +112,7 @@ function runApplication(options) {
                         options,
                         access_token,
                         instance_url,
-                        refresh_token
+                        null
                     );
                 })
                 .catch(e => {
@@ -150,7 +124,7 @@ function runApplication(options) {
 function authApplication(app, options) {
     app.setSize(500, 700);
 
-    // Check for valid URL
+    // Construct the URL for OAuth
     const oauthUrl =
         options.authorize_url +
         '?' +
@@ -162,66 +136,41 @@ function authApplication(app, options) {
             })
         );
 
+    // Load the OAuth login screen
     app.loadURL(oauthUrl);
     app.show();
     app.focus();
 
     app.webContents.on('will-navigate', (event, browserUrl) => {
+        console.log('Navigating to ' + browserUrl);
+
         // Not the URL we are looking for...
         if (
             browserUrl.substring(0, options.redirect_uri.length) !==
             options.redirect_uri
         ) {
+            console.log('Not the URL we are looking for...');
             return;
         }
+
+        event.preventDefault();
 
         const urlPieces = url.parse(browserUrl);
-        const urlQueryPieces = querystring.parse(urlPieces.query);
+        const urlQueryPieces = querystring.parse(urlPieces.hash.substring(1));
 
-        if (!urlQueryPieces.code) {
-            alert(
-                'A problem occurred! There was no code paramter in the OAuth redirect.'
-            );
-            return;
-        }
+        keytar.setPassword(
+            KEYTAR_SERVICE,
+            KEYTAR_ACCOUNT,
+            JSON.stringify(urlQueryPieces)
+        );
 
-        const postData = querystring.stringify({
-            grant_type: 'authorization_code',
-            redirect_uri: options.redirect_uri,
-            client_id: options.client_id,
-            client_secret: options.client_secret,
-            code: urlQueryPieces.code,
-        });
-
-        fetch(options.access_token_url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Content-Length': postData.length,
-                Accept: 'application/json',
-            },
-            body: postData,
-        })
-            .then(response => response.json())
-            .then(result => {
-                keytar
-                    .deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-                    .then(() => {
-                        keytar.setPassword(
-                            KEYTAR_SERVICE,
-                            KEYTAR_ACCOUNT,
-                            JSON.stringify(result)
-                        );
-                    });
-
-                loadApplication(
-                    app,
-                    options,
-                    result.access_token,
-                    result.instance_url,
-                    result.refresh_token
-                );
-            });
+        loadApplication(
+            app,
+            options,
+            urlQueryPieces.access_token,
+            urlQueryPieces.instance_url,
+            null
+        );
     });
 }
 

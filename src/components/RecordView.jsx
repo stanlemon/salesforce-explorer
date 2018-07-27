@@ -1,16 +1,13 @@
 import React from 'react';
+import Loading from './Loading';
 import Header from './lds/Header';
 import FormElement from './lds/FormElement';
 import Panel from './lds/Panel';
 import PanelSection from './lds/PanelSection';
 
 export default class RecordView extends React.Component {
-    componentWillMount() {
+    componentDidMount() {
         this.loadSObject(this.props);
-    }
-
-    componentWillReceiveProps(props) {
-        this.loadSObject(props);
     }
 
     loadSObject(props) {
@@ -40,12 +37,10 @@ export default class RecordView extends React.Component {
 
     render() {
         if (!this.state) {
-            return (
-                <div className="padding">
-                    <em>Loading...</em>
-                </div>
-            );
+            return <Loading />;
         }
+
+        // TODO: Add error component
 
         const keys = ['Id', 'Name'].concat(
             Object.keys(this.state.record)

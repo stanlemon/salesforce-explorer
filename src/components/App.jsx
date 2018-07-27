@@ -2,7 +2,6 @@ import React from 'react';
 import { HashRouter as ReactRouter, Route } from 'react-router-dom';
 import createHashHistory from 'history/createHashHistory';
 import GlobalNavigation from './lds/GlobalNavigation';
-import Home from './Home';
 import ObjectList from './ObjectList';
 import ObjectView from './ObjectView';
 import RecordList from './RecordList';
@@ -14,10 +13,6 @@ import PushTopicView from './PushTopicView';
 const routes = [
     {
         path: '/',
-        component: Home,
-    },
-    {
-        path: '/objects',
         component: ObjectList,
     },
     {
@@ -46,27 +41,27 @@ const routes = [
     },
 ];
 
+// This should be the same history that our router uses, we're pulling it here to easily pass down to components
 const history = createHashHistory();
 
-export default function App({ conn }) {
-    console.log(history.location);
-    return (
-        <ReactRouter history={history}>
-            <div>
-                <div className="titlebar" style={{ WebkitAppRegion: 'drag' }} />
+export default function App({ conn, logout }) {
+    const contentCss = {
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+        overflow: 'scroll',
+    };
 
+    return (
+        <ReactRouter>
+            <div>
                 <div className="menubar">
                     <GlobalNavigation
                         appName="Explorer"
                         menu={[
                             {
-                                label: 'Home',
+                                label: 'Objects',
                                 link: '/',
-                                handler: () => {},
-                            },
-                            {
-                                label: 'Object',
-                                link: '/objects',
                                 handler: () => {},
                             },
                             {
@@ -82,13 +77,13 @@ export default function App({ conn }) {
                             {
                                 label: 'Logout',
                                 link: '',
-                                handler: () => this.logout(),
+                                handler: () => logout(),
                             },
                         ]}
                     />
                 </div>
 
-                <div className="content">
+                <div style={contentCss}>
                     {routes.map(route => {
                         const Component = route.component;
 
@@ -97,6 +92,8 @@ export default function App({ conn }) {
                                 exact
                                 strict
                                 path={route.path}
+                                // Use the function's name for our key
+                                key={Component.name}
                                 render={({ match }) => (
                                     <Component
                                         conn={conn}

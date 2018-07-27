@@ -1,18 +1,15 @@
 import React from 'react';
+import Error from './Error';
+import Loading from './Loading';
 import Header from './lds/Header';
 import DataTable from './lds/DataTable';
 
 export default class ObjectView extends React.Component {
-    componentWillMount() {
+    componentDidMount() {
         this.loadDescribe(this.props);
     }
 
-    componentWillReceiveProps(props) {
-        this.loadDescribe(props);
-    }
-
     loadDescribe(props) {
-        console.log(this.props);
         const { conn, route } = props;
         const { params } = route;
         const { name } = params;
@@ -35,16 +32,12 @@ export default class ObjectView extends React.Component {
     }
 
     render() {
-        if (this.state && this.state.error) {
-            return <div className="padding">{this.state.error}</div>;
+        if (!this.state || !this.state.object) {
+            return <Loading />;
         }
 
-        if (!this.state || !this.state.object) {
-            return (
-                <div className="padding">
-                    <em>Loading object...</em>
-                </div>
-            );
+        if (this.state && this.state.error) {
+            return <Error message={this.state.error} />;
         }
 
         return (

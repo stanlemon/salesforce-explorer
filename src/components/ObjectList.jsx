@@ -1,20 +1,33 @@
 import React from 'react';
+import Loading from './Loading';
+import Error from './Error';
 import Header from './lds/Header';
 import DataTable from './lds/DataTable';
+import { isEmpty } from 'lodash';
 
 export default class ObjectList extends React.Component {
-    componentWillMount() {
-        this.loadDescribeGlobal(this.props);
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            objects: [],
+        };
     }
 
-    componentWillReceiveProps(props) {
-        this.loadDescribeGlobal(props);
+    componentDidMount() {
+        this.loadDescribeGlobal(this.props);
     }
 
     loadDescribeGlobal(props) {
         const { conn } = props;
 
-        if (!conn) return;
+        if (!conn) {
+            console.log(
+                'Failing to load describe call because a connection is not set.',
+                conn
+            );
+            return;
+        }
 
         conn.describeGlobal((error, res) => {
             if (error) {
@@ -32,16 +45,12 @@ export default class ObjectList extends React.Component {
     }
 
     render() {
-        if (this.state && this.state.error) {
-            return <div>{this.state.error.message}</div>;
+        if (isEmpty(this.state.objects)) {
+            return <Loading />;
         }
 
-        if (!this.state || !this.state.objects) {
-            return (
-                <div className="padding">
-                    <em>Loading objects...</em>
-                </div>
-            );
+        if (this.state && this.state.error) {
+            return <Error message={this.state.error.message} />;
         }
 
         return (

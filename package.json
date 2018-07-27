@@ -1,12 +1,12 @@
 {
-  "name": "salesforce-explorer",
+  "name": "Salesforce Explorer",
   "version": "0.1.0",
   "description": "An explorer for Salesforce, like workbench but on your desktop",
   "author": "Stan Lemon <stosh1985@gmail.com>",
   "repository": "https://github.com/stanlemon/salesforce-explorer",
   "license": "MIT",
   "keywords": [],
-  "main": "main.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -38,8 +38,8 @@
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
       "github_repository": {
-        "owner": "",
-        "name": ""
+        "owner": "stosh1985@gmail.com",
+        "name": "Stan Lemon"
       },
       "windowsStoreConfig": {
         "packageName": "",

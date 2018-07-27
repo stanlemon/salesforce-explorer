@@ -3,30 +3,35 @@ import Link from '../Link';
 
 export default class GlobalNavigation extends React.Component {
     render() {
+        const nodragCss = {
+            userSelect: 'none',
+            WebkitAppRegion: 'drag',
+        };
+
         return (
-            <div className="slds-context-bar">
-                <div className="slds-context-bar__primary slds-context-bar__item--divider-right">
-                    <div className="slds-context-bar__item slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger--click slds-no-hover">
+            <div className="slds-context-bar" style={nodragCss}>
+                <div className="slds-context-bar__primary">
+                    <div className="slds-context-bar__item slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger_click slds-no-hover">
                         <div className="slds-context-bar__icon-action">
-                            <a
-                                href="javascript:void(0);"
-                                className="slds-icon-waffle_container slds-context-bar__button"
+                            <button
+                                className="slds-button slds-icon-waffle_container slds-context-bar__button"
+                                title="Description of the icon when needed"
                             >
-                                <div className="slds-icon-waffle">
-                                    <div className="slds-r1" />
-                                    <div className="slds-r2" />
-                                    <div className="slds-r3" />
-                                    <div className="slds-r4" />
-                                    <div className="slds-r5" />
-                                    <div className="slds-r6" />
-                                    <div className="slds-r7" />
-                                    <div className="slds-r8" />
-                                    <div className="slds-r9" />
-                                </div>
+                                <span className="slds-icon-waffle">
+                                    <span className="slds-r1" />
+                                    <span className="slds-r2" />
+                                    <span className="slds-r3" />
+                                    <span className="slds-r4" />
+                                    <span className="slds-r5" />
+                                    <span className="slds-r6" />
+                                    <span className="slds-r7" />
+                                    <span className="slds-r8" />
+                                    <span className="slds-r9" />
+                                </span>
                                 <span className="slds-assistive-text">
                                     Open App Launcher
                                 </span>
-                            </a>
+                            </button>
                         </div>
                         <span className="slds-context-bar__label-action slds-context-bar__app-name">
                             <span
@@ -38,7 +43,7 @@ export default class GlobalNavigation extends React.Component {
                         </span>
                     </div>
                 </div>
-                <nav className="slds-context-bar__secondary" role="navigation">
+                <nav className="slds-context-bar__secondary">
                     <ul className="slds-grid">
                         {this.props.menu.map(item => {
                             const handler =
@@ -46,6 +51,7 @@ export default class GlobalNavigation extends React.Component {
                                     ? () => {}
                                     : item.handler;
 
+                            // TODO: Check path against the menu item to see if it is active and add this class: slds-is-active
                             return (
                                 <li
                                     key={item.label}

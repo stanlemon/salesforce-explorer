@@ -1,14 +1,11 @@
 import React from 'react';
+import Loading from './Loading';
 import Header from './lds/Header';
 import DataTable from './lds/DataTable';
 
 export default class RecordList extends React.Component {
-    componentWillMount() {
+    componentDidMount() {
         this.loadSObjects(this.props);
-    }
-
-    componentWillReceiveProps(props) {
-        this.loadSObjects(props);
     }
 
     loadSObjects(props) {
@@ -37,11 +34,7 @@ export default class RecordList extends React.Component {
 
     render() {
         if (!this.state || !this.state.records) {
-            return (
-                <div className="padding">
-                    <em>Loading...</em>
-                </div>
-            );
+            return <Loading />;
         }
 
         const { route } = this.props;
@@ -60,7 +53,9 @@ export default class RecordList extends React.Component {
                     headers={headers}
                     records={this.state.records}
                     onClick={record => {
-                        this.props.history.push(`/records/${name}/${record.Id}`);
+                        this.props.history.push(
+                            `/records/${name}/${record.Id}`
+                        );
                     }}
                 />
             </div>

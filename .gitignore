@@ -1,7 +1,7 @@
 node_modules/
 dist/
 .DS_Store
-config.json
+src/config.json
 .vscode
 release/
 node_modules

@@ -1,14 +1,12 @@
 import React from 'react';
+import Error from './Error';
+import Loading from './Loading';
 import Header from './lds/Header';
 import DataTable from './lds/DataTable';
 
 export default class PushTopicList extends React.Component {
-    componentWillMount() {
+    componentDidMount() {
         this.loadPushTopics(this.props);
-    }
-
-    componentWillReceiveProps(props) {
-        this.loadPushTopics(props);
     }
 
     loadPushTopics(props) {
@@ -35,15 +33,11 @@ export default class PushTopicList extends React.Component {
 
     render() {
         if (!this.state || !this.state.records) {
-            return (
-                <div className="padding">
-                    <em>Loading...</em>
-                </div>
-            );
+            return <Loading />;
         }
 
         if (this.state && this.state.error) {
-            return <div className="padding">{this.state.error}</div>;
+            return <Error message={this.state.error} />;
         }
 
         const headers = ['Id', 'Name', 'Query'];

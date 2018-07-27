@@ -10,22 +10,15 @@ This is an electron app using the jsforce library to explore a Salesforce instan
 npm instal
 ```
 
-2. Rebuild the native libraries against electron's version of node, you can doing this using:
+1. Create a connected app in a Salesforce org. You can create a new developer org [here](https://developer.salesforce.com/signup), and there are instructions for setting up a connected app [here](https://help.salesforce.com/articleView?id=connected_app_create.htm&type=0).  You will want to add the grants for api access.  For a callback url you can use: `https://salesforce-explorer-redirect-uri.localhost.com/`.
 
-```
-npm run rebuild
-```
-
-3. Create a connected app in a Salesforce org. You can create a new developer org [here](https://developer.salesforce.com/signup), and there are instructions for setting up a connected app [here](https://help.salesforce.com/articleView?id=connected_app_create.htm&type=0).  You will want to add the grants for refresh token and api access.  For a callback url you can use: `https://salesforce-explorer-redirect-uri.localhost.com/`.
-
-4. Create a config file `config.json` in your root. It should look like this:
+2. Create a config file `config.json` in your root. It should look like this:
 
 ```json
 {
     "authorize_url": "https://login.salesforce.com/services/oauth2/authorize",
     "access_token_url": "https://login.salesforce.com/services/oauth2/token",
-    "client_id": "...",
-    "client_secret": "...",
+    "client_id": "<<<FILL THIS IN WITH YOUR CONSUMER ID>>>",
     "redirect_uri": "https://salesforce-explorer-redirect-uri.localhost.com/",
     "scopes": ["refresh_token", "api"],
     "extra": {
@@ -34,27 +27,19 @@ npm run rebuild
 }
 ```
 
-*Note that `client_id` and `client_secret` will be filled in with those provided by your connected app, which you created in the previous step.*
+*Note that `client_id` will be filled in with the consumer id provided by your connected app, which you created in the previous step.*
 
-5. Run the app:
+3. Run the app in development mode:
 ```
 npm start
 ```
 
 ## Packaging
 
-In order to package you first need to run:
+In order to package an app that you can run locally:
 
 ```
-npm run build
-```
-
-This will use babel to compile es6 language features and React's jsx.
-
-Next run the packaging command:
-
-```
-npm run package
+npm run make
 ```
 
 This will prepare a binary on your local machine that you can run.

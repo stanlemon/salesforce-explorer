@@ -30,6 +30,8 @@ export default class DataTable extends React.Component {
             headers = Object.keys(records[0]);
         }
 
+        // TODO: Table headers should be fixed at the top
+
         return (
             <table className="slds-table slds-table--bordered slds-table--cell-buffer">
                 <thead>
@@ -58,9 +60,7 @@ export default class DataTable extends React.Component {
                             {headers.map(key => (
                                 <td
                                     key={'col-' + i + '-' + key}
-                                    scope="row"
                                     data-label={key}
-                                    title={record[key]}
                                 >
                                     <div className="slds-truncate">
                                         {this.renderValue(record[key])}

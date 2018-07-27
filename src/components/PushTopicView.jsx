@@ -1,21 +1,18 @@
 import React from 'react';
+import Error from './Error';
+import Loading from './Loading';
 import Header from './lds/Header';
 
 export default class PushTopicView extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
             messages: [],
         };
     }
-
-    componentWillMount() {
+    componentDidMount() {
         this.loadPushTopic(this.props);
-    }
-
-    componentWillReceiveProps(props) {
-        this.loadPushTopic(props);
     }
 
     loadPushTopic(props) {
@@ -50,15 +47,11 @@ export default class PushTopicView extends React.Component {
 
     render() {
         if (!this.state || !this.state.pushTopic) {
-            return (
-                <div className="padding">
-                    <em>Loading...</em>
-                </div>
-            );
+            return <Loading />;
         }
 
         if (this.state && this.state.error) {
-            return <div className="padding">{this.state.error}</div>;
+            return <Error message={this.state.error} />;
         }
 
         return (
@@ -68,7 +61,7 @@ export default class PushTopicView extends React.Component {
                     subtitle="Push Topic"
                 />
 
-                <div className="padding">
+                <div style={{ padding: 10 }}>
                     <p>
                         New events will automatically appear below as they are
                         pushed to this topic.

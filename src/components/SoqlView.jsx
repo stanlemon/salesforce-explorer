@@ -51,6 +51,20 @@ export default class SoqlView extends React.Component {
                           .sort()
                   );
 
+        const textareaCss = {
+            outline: 'none',
+            borderTop: 'none',
+            borderRight: 'none',
+            borderLeft: 'none',
+            borderBottom: '1px solid #d8dde6',
+            padding: 10,
+            fontFamily: "'Monaco', 'Courier New', 'Courier'",
+            width: '100%',
+            height: '5em',
+        };
+
+        // TODO: Add loading and error components
+
         return (
             <div>
                 <Header title="SOQL" subtitle="Query reocrds" menu={[]} />
@@ -65,10 +79,10 @@ export default class SoqlView extends React.Component {
                 <textarea
                     value={this.state.query}
                     onChange={this.handleQuery.bind(this)}
-                    className="soql-query"
+                    style={textareaCss}
                     placeholder="SELECT Id, Name, CreatedDate FROM Account ORDER BY Name LIMIT 10"
                 />
-                <div className="padding">
+                <div style={{ padding: 10 }}>
                     <Button
                         label="Query"
                         onClick={this.handleSoql.bind(this)}
@@ -78,7 +92,9 @@ export default class SoqlView extends React.Component {
                     <DataTable
                         headers={headers}
                         records={this.state.records}
-                        onClick={record => {}}
+                        onClick={record => {
+                            // TODO: If the table's results include id we can link directly to a view of the full record
+                        }}
                     />
                 )}
             </div>
