@@ -1,10 +1,10 @@
-'use strict';
+import React from 'react';
+import Header from './lds/Header';
+import FormElement from './lds/FormElement';
+import Panel from './lds/Panel';
+import PanelSection from './lds/PanelSection';
 
-const React = require('react');
-const { Header, Panel, PanelSection, FormElement } = require('./lds');
-
-module.exports = class RecordView extends React.Component {
-
+export default class RecordView extends React.Component {
     componentWillMount() {
         this.loadSObject(this.props);
     }
@@ -14,7 +14,8 @@ module.exports = class RecordView extends React.Component {
     }
 
     loadSObject(props) {
-        const { conn, params } = props;
+        const { conn, route } = props;
+        const { params } = route;
         const { name, id } = params;
 
         if (!conn) return;
@@ -25,15 +26,14 @@ module.exports = class RecordView extends React.Component {
             .limit(1)
             .execute((error, records) => {
                 if (error) {
-                    console.error(error);
                     this.setState({
-                        error
+                        error,
                     });
                     return;
                 }
 
                 this.setState({
-                    record: records[0]
+                    record: records[0],
                 });
             });
     }
@@ -41,27 +41,31 @@ module.exports = class RecordView extends React.Component {
     render() {
         if (!this.state) {
             return (
-                <div className="padding"><em>Loading...</em></div>
+                <div className="padding">
+                    <em>Loading...</em>
+                </div>
             );
         }
 
-        const keys = ['Id', 'Name'].concat(Object.keys(this.state.record).filter((v) =>
-            v !== 'attributes' && v !== 'Id' && v !== 'Name'
-        ).sort());
+        const keys = ['Id', 'Name'].concat(
+            Object.keys(this.state.record)
+                .filter(v => v !== 'attributes' && v !== 'Id' && v !== 'Name')
+                .sort()
+        );
 
         return (
             <div>
                 <Header title={this.state.record.Name} subtitle="Record" />
                 <Panel>
                     <PanelSection title="Details">
-                        {keys.map((key) =>
-                        <FormElement key={key} label={key}>
-                            {this.state.record[key] + ''}
-                        </FormElement>
-                        )}
+                        {keys.map(key => (
+                            <FormElement key={key} label={key}>
+                                {this.state.record[key] + ''}
+                            </FormElement>
+                        ))}
                     </PanelSection>
                 </Panel>
             </div>
         );
     }
-};
+}

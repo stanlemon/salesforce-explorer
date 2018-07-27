@@ -4,3 +4,6 @@ dist/
 config.json
 .vscode
 release/
+node_modules
+out
+.eslintcache

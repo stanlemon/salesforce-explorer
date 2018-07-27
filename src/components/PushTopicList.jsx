@@ -1,11 +1,8 @@
-'use strict';
+import React from 'react';
+import Header from './lds/Header';
+import DataTable from './lds/DataTable';
 
-const React = require('react');
-const { Link } = require('react-router');
-const { Header, DataTable } = require('./lds');
-
-module.exports = class PushTopicList extends React.Component {
-
+export default class PushTopicList extends React.Component {
     componentWillMount() {
         this.loadPushTopics(this.props);
     }
@@ -13,38 +10,40 @@ module.exports = class PushTopicList extends React.Component {
     componentWillReceiveProps(props) {
         this.loadPushTopics(props);
     }
-    
+
     loadPushTopics(props) {
         const { conn } = props;
 
         if (!conn) return;
 
-        conn.sobject("PushTopic").find().execute((error, records) => {
-            if (error) {
-                console.error(error);
-                this.setState({
-                    error
-                });
-                return;
-            }
+        conn.sobject('PushTopic')
+            .find()
+            .execute((error, records) => {
+                if (error) {
+                    console.error(error);
+                    this.setState({
+                        error,
+                    });
+                    return;
+                }
 
-            this.setState({
-                records
+                this.setState({
+                    records,
+                });
             });
-        });
     }
 
     render() {
         if (!this.state || !this.state.records) {
             return (
-                <div className="padding"><em>Loading...</em></div>
+                <div className="padding">
+                    <em>Loading...</em>
+                </div>
             );
         }
 
         if (this.state && this.state.error) {
-            return (
-                <div className="padding">{this.state.error}</div>
-            );
+            return <div className="padding">{this.state.error}</div>;
         }
 
         const headers = ['Id', 'Name', 'Query'];
@@ -55,12 +54,12 @@ module.exports = class PushTopicList extends React.Component {
                 <DataTable
                     headers={headers}
                     records={this.state.records}
-                    onClick={(record) => {
+                    onClick={record => {
                         console.log(record);
-                        this.props.router.push(`/push/${record.Id}`)
+                        this.props.router.push(`/push/${record.Id}`);
                     }}
                 />
             </div>
         );
     }
-};
+}

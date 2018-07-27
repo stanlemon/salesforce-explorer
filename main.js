@@ -1,10 +1,8 @@
-'use strict';
-
-const electron = require('electron');
-const keytar = require('keytar');
-const querystring = require('querystring');
-const url = require('url');
-const fetch = require('node-fetch');
+import electron from 'electron';
+import keytar from 'keytar';
+import querystring from 'querystring';
+import url from 'url';
+import fetch from 'node-fetch';
 
 const config = require('./config.json');
 
@@ -25,34 +23,42 @@ function refreshOauth(options, refreshToken) {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postData.length,
-                'Accept': 'application/json',
+                Accept: 'application/json',
             },
-            body: postData
+            body: postData,
         })
-            .then((response) => response.json())
-            .then((result) => {
-                keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-                    .then((password) => JSON.parse(password))
-                    .then((oldPassword) => {
-                        const newPassword = Object.assign({}, oldPassword, result);
+            .then(response => response.json())
+            .then(result => {
+                keytar
+                    .getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+                    .then(password => JSON.parse(password))
+                    .then(oldPassword => {
+                        const newPassword = Object.assign(
+                            {},
+                            oldPassword,
+                            result
+                        );
 
-                        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then(() => {
-                            keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(newPassword));
-                        });
-                    })
-            })
-        ;
+                        keytar
+                            .deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+                            .then(() => {
+                                keytar.setPassword(
+                                    KEYTAR_SERVICE,
+                                    KEYTAR_ACCOUNT,
+                                    JSON.stringify(newPassword)
+                                );
+                            });
+                    });
+            });
     }, 60000); // Refresh every 60 seconds
 }
 
 function loadApplication(app, options, accessToken, instanceUrl, refreshToken) {
     app.setSize(800, 600);
+    app.loadURL(`file://${__dirname}/src/index.html`);
 
     if (process.env.NODE_ENV === 'development') {
-        app.loadURL('file://' + __dirname + '/src/index.html');
         app.webContents.openDevTools();
-    } else {
-        app.loadURL('file://' + __dirname + '/dist/index.html');
     }
 
     refreshOauth(options, refreshToken);
@@ -72,9 +78,10 @@ function runApplication(options) {
     electron.ipcMain.on('salesforce-logout', (event, arg) => {
         console.log('Logging out...');
 
-        keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-            .then((result) => JSON.parse(result))
-            .then((password) => {
+        keytar
+            .getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+            .then(result => JSON.parse(result))
+            .then(password => {
                 const { access_token } = password;
 
                 const accessTokenUrl = url.parse(options.access_token_url);
@@ -84,31 +91,30 @@ function runApplication(options) {
                     pathname: '/services/oauth2/revoke',
                     query: {
                         token: access_token,
-                        format: 'json'
-                    }
+                        format: 'json',
+                    },
                 });
 
-                fetch(revokeTokenUrl)
-                    .then((response) => {
-                        if (response.status != 200) {
-                            return;
-                        }
+                fetch(revokeTokenUrl).then(response => {
+                    if (response.status != 200) {
+                        return;
+                    }
 
-                        keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-                            .then(() => {
-                                app.webContents.session.clearStorageData();
+                    keytar
+                        .deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+                        .then(() => {
+                            app.webContents.session.clearStorageData();
 
-                                authApplication(app, options);
-                            });
-                    });
-                ;
-            })
-        ;
+                            authApplication(app, options);
+                        });
+                });
+            });
     });
 
-    keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
-        .then((result) => JSON.parse(result))
-        .then((password) => {
+    keytar
+        .getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+        .then(result => JSON.parse(result))
+        .then(password => {
             if (password == null) {
                 authApplication(app, options);
                 return;
@@ -116,36 +122,45 @@ function runApplication(options) {
 
             const { id, access_token, instance_url, refresh_token } = password;
 
-            const url = id + '?' + querystring.stringify({ access_token: access_token, format: "json" });
+            const url =
+                id +
+                '?' +
+                querystring.stringify({
+                    access_token: access_token,
+                    format: 'json',
+                });
 
             fetch(url)
-                .then((response) => response.json())
-                .then((user) => {
-                    loadApplication(app, options, access_token, instance_url, refresh_token);
+                .then(response => response.json())
+                .then(user => {
+                    loadApplication(
+                        app,
+                        options,
+                        access_token,
+                        instance_url,
+                        refresh_token
+                    );
                 })
-                .catch((e) => {
+                .catch(e => {
                     authApplication(app, options);
-                })
-            ;
-        })
-    ;
+                });
+        });
 }
 
 function authApplication(app, options) {
     app.setSize(500, 700);
 
     // Check for valid URL
-    const oauthUrl = options.authorize_url + '?' + querystring.stringify(
-        Object.assign(
-            {}, 
-            options.extra,
-            {
+    const oauthUrl =
+        options.authorize_url +
+        '?' +
+        querystring.stringify(
+            Object.assign({}, options.extra, {
                 client_id: options.client_id,
-                scope: options.scopes.join(" "),
+                scope: options.scopes.join(' '),
                 redirect_uri: options.redirect_uri,
-            }
-        )
-    );
+            })
+        );
 
     app.loadURL(oauthUrl);
     app.show();
@@ -153,7 +168,10 @@ function authApplication(app, options) {
 
     app.webContents.on('will-navigate', (event, browserUrl) => {
         // Not the URL we are looking for...
-        if (browserUrl.substring(0, options.redirect_uri.length) !== options.redirect_uri) {
+        if (
+            browserUrl.substring(0, options.redirect_uri.length) !==
+            options.redirect_uri
+        ) {
             return;
         }
 
@@ -161,7 +179,9 @@ function authApplication(app, options) {
         const urlQueryPieces = querystring.parse(urlPieces.query);
 
         if (!urlQueryPieces.code) {
-            alert('A problem occurred! There was no code paramter in the OAuth redirect.');
+            alert(
+                'A problem occurred! There was no code paramter in the OAuth redirect.'
+            );
             return;
         }
 
@@ -178,19 +198,30 @@ function authApplication(app, options) {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postData.length,
-                'Accept': 'application/json',
+                Accept: 'application/json',
             },
-            body: postData
+            body: postData,
         })
-            .then((response) => response.json())
-            .then((result) => {
-                keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT).then(() => {
-                    keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, JSON.stringify(result));
-                });
+            .then(response => response.json())
+            .then(result => {
+                keytar
+                    .deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+                    .then(() => {
+                        keytar.setPassword(
+                            KEYTAR_SERVICE,
+                            KEYTAR_ACCOUNT,
+                            JSON.stringify(result)
+                        );
+                    });
 
-                loadApplication(app, options, result.access_token, result.instance_url, result.refresh_token);
-            })
-        ;
+                loadApplication(
+                    app,
+                    options,
+                    result.access_token,
+                    result.instance_url,
+                    result.refresh_token
+                );
+            });
     });
 }
 
@@ -208,87 +239,83 @@ electron.app.on('window-all-closed', () => {
 });
 
 const menuTemplate = [
-  {
-    label: 'Edit',
-    submenu: [
-      {role: 'undo'},
-      {role: 'redo'},
-      {type: 'separator'},
-      {role: 'cut'},
-      {role: 'copy'},
-      {role: 'paste'},
-      {role: 'pasteandmatchstyle'},
-      {role: 'delete'},
-      {role: 'selectall'}
-    ]
-  },
-  {
-    label: 'View',
-    submenu: [
-      {role: 'reload'},
-      {role: 'forcereload'},
-      {role: 'toggledevtools'},
-      {type: 'separator'},
-      {role: 'resetzoom'},
-      {role: 'zoomin'},
-      {role: 'zoomout'},
-      {type: 'separator'},
-      {role: 'togglefullscreen'}
-    ]
-  },
-  {
-    role: 'window',
-    submenu: [
-      {role: 'minimize'},
-      {role: 'close'}
-    ]
-  },
-  {
-    role: 'help',
-    submenu: [
-      {
-        label: 'Learn More',
-        // TODO: Update
-        click () { electron.shell.openExternal('https://electron.atom.io') }
-      }
-    ]
-  }
-]
+    {
+        label: 'Edit',
+        submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'pasteandmatchstyle' },
+            { role: 'delete' },
+            { role: 'selectall' },
+        ],
+    },
+    {
+        label: 'View',
+        submenu: [
+            { role: 'reload' },
+            { role: 'forcereload' },
+            { role: 'toggledevtools' },
+            { type: 'separator' },
+            { role: 'resetzoom' },
+            { role: 'zoomin' },
+            { role: 'zoomout' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' },
+        ],
+    },
+    {
+        role: 'window',
+        submenu: [{ role: 'minimize' }, { role: 'close' }],
+    },
+    {
+        role: 'help',
+        submenu: [
+            {
+                label: 'Learn More',
+                // TODO: Update
+                click() {
+                    electron.shell.openExternal('https://electron.atom.io');
+                },
+            },
+        ],
+    },
+];
 
 if (process.platform === 'darwin') {
-  menuTemplate.unshift({
-    label: electron.app.getName(),
-    submenu: [
-      {role: 'about'},
-      {type: 'separator'},
-      {role: 'services', submenu: []},
-      {type: 'separator'},
-      {role: 'hide'},
-      {role: 'hideothers'},
-      {role: 'unhide'},
-      {type: 'separator'},
-      {role: 'quit'}
-    ]
-  })
+    menuTemplate.unshift({
+        label: electron.app.getName(),
+        submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'services', submenu: [] },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideothers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' },
+        ],
+    });
 
-  // Edit menu
-  menuTemplate[1].submenu.push(
-    {type: 'separator'},
-    {
-      label: 'Speech',
-      submenu: [
-        {role: 'startspeaking'},
-        {role: 'stopspeaking'}
-      ]
-    }
-  )
+    // Edit menu
+    menuTemplate[1].submenu.push(
+        { type: 'separator' },
+        {
+            label: 'Speech',
+            submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
+        }
+    );
 
-  // Window menu
-  menuTemplate[3].submenu = [
-    {role: 'close'},
-    {role: 'minimize'},
-    {role: 'zoom'},
-    {type: 'separator'},
-    {role: 'front'}
-  ]
+    // Window menu
+    menuTemplate[3].submenu = [
+        { role: 'close' },
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' },
+    ];
 }

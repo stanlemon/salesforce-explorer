@@ -1,9 +1,6 @@
-'use strict';
+import React from 'react';
 
-const React = require('react');
-
-module.exports = class FormElement extends React.Component {
-
+export default class FormElement extends React.Component {
     render() {
         const { label, children } = this.props;
 
@@ -18,4 +15,4 @@ module.exports = class FormElement extends React.Component {
             </div>
         );
     }
-};
+}

@@ -1,51 +1,83 @@
 {
-  "name": "salesforce-explort",
+  "name": "salesforce-explorer",
   "version": "0.1.0",
   "description": "An explorer for Salesforce, like workbench but on your desktop",
   "author": "Stan Lemon <stosh1985@gmail.com>",
   "repository": "https://github.com/stanlemon/salesforce-explorer",
   "license": "MIT",
+  "keywords": [],
   "main": "main.js",
   "scripts": {
-    "start": "NODE_ENV=development electron main.js",
-    "test": "mocha",
-    "build": "babel src -d dist",
-    "lint": "eslint src",
-    "package": "electron-packager . 'Salesforce Explorer' --overwrite --out=release --asar=true",
-    "rebuild": "electron-rebuild"
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --cache --color --ext .jsx,.js src",
+    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check"
   },
-  "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-eslint": "7.2",
-    "babel-plugin-transform-inline-environment-variables": "^6.8.0",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-react": "^6.24.1",
-    "electron-packager": "^8.6.0",
-    "electron-prebuilt-compile": "^1.6.2",
-    "electron-rebuild": "^1.5.7",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb": "14.1",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.10.3",
-    "react-addons-test-utils": "^15.5.1",
-    "watch-glob": "^0.1.3"
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb",
+          "rpm"
+        ]
+      },
+      "electronPackagerConfig": {
+        "packageManager": "npm"
+      },
+      "electronWinstallerConfig": {
+        "name": "salesforce_explorer"
+      },
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "",
+        "name": ""
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "salesforce_explorer"
+      }
+    }
   },
   "dependencies": {
     "@salesforce-ux/design-system": "^2.2.2",
-    "electron": "^1.6.5",
+    "electron-compile": "^6.4.3",
+    "electron-devtools-installer": "^2.1.0",
+    "electron-squirrel-startup": "^1.0.0",
     "jsforce": "^1.7.1",
     "keytar": "^4.0.2",
-    "localforage": "^1.5.0",
     "lodash": "^4.17.4",
-    "node-fetch": "^1.6.3",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
-    "react-redux": "^5.0.4",
-    "react-router": "^3.0.5",
-    "react-router-redux": "^4.0.8",
-    "redux": "^3.6.0",
-    "redux-persist": "^4.6.0",
-    "whatwg-fetch": "^2.0.3"
+    "node-fetch": "^2.2.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-hot-loader": "^4.3.4",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "electron-forge": "^5.2.2",
+    "electron-prebuilt-compile": "2.0.4",
+    "eslint": "^4",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-react": "^7.10.0",
+    "prettier": "^1.13.7"
   }
 }

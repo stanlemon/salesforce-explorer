@@ -1,12 +1,8 @@
-'use strict';
+import React from 'react';
+import Header from './lds/Header';
+import DataTable from './lds/DataTable';
 
-const React = require('react');
-const { Link } = require('react-router');
-const { Header, DataTable } = require('./lds');
-
-module.exports = class ObjectView extends React.Component {
-
-
+export default class ObjectView extends React.Component {
     componentWillMount() {
         this.loadDescribe(this.props);
     }
@@ -16,7 +12,9 @@ module.exports = class ObjectView extends React.Component {
     }
 
     loadDescribe(props) {
-        const { conn , params } = props;
+        console.log(this.props);
+        const { conn, route } = props;
+        const { params } = route;
         const { name } = params;
 
         if (!conn) return;
@@ -25,40 +23,47 @@ module.exports = class ObjectView extends React.Component {
             if (error) {
                 console.error(error);
                 this.setState({
-                    error
+                    error,
                 });
                 return;
             }
 
             this.setState({
-                object
+                object,
             });
         });
     }
 
     render() {
         if (this.state && this.state.error) {
-            return (
-                <div className="padding">{this.state.error}</div>
-            );
+            return <div className="padding">{this.state.error}</div>;
         }
 
         if (!this.state || !this.state.object) {
             return (
-                <div className="padding"><em>Loading object...</em></div>
+                <div className="padding">
+                    <em>Loading object...</em>
+                </div>
             );
         }
 
         return (
             <div>
-                <Header title={this.state.object.label} subtitle="Object" menu={[
-                    {
-                        label: 'View Records',
-                        link: `/records/${this.state.object.name}`,
-                    },
-                ]} />
+                <Header
+                    title={this.state.object.label}
+                    subtitle="Object"
+                    menu={[
+                        {
+                            label: 'View Records',
+                            link: `/records/${this.state.object.name}`,
+                        },
+                    ]}
+                />
 
-                <DataTable headers={['label', 'name', 'type', 'custom', ]} records={this.state.object.fields} />
+                <DataTable
+                    headers={['label', 'name', 'type', 'custom']}
+                    records={this.state.object.fields}
+                />
             </div>
         );
     }

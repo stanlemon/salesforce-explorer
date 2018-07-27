@@ -1,10 +1,8 @@
-'use strict';
+import React from 'react';
+import Header from './lds/Header';
+import DataTable from './lds/DataTable';
 
-const React = require('react');
-const { Header, DataTable } = require('./lds');
-
-module.exports = class RecordList extends React.Component {
-
+export default class RecordList extends React.Component {
     componentWillMount() {
         this.loadSObjects(this.props);
     }
@@ -14,38 +12,46 @@ module.exports = class RecordList extends React.Component {
     }
 
     loadSObjects(props) {
-        const { conn, params } = props;
+        const { conn, route } = props;
+        const { params } = route;
         const { name } = params;
 
         if (!conn) return;
 
-        conn.sobject(name).find().execute((error, records) => {
-            if (error) {
-                console.error(error);
-                this.setState({
-                    error
-                });
-                return;
-            }
+        conn.sobject(name)
+            .find()
+            .execute((error, records) => {
+                if (error) {
+                    console.error(error);
+                    this.setState({
+                        error,
+                    });
+                    return;
+                }
 
-            this.setState({
-                records
+                this.setState({
+                    records,
+                });
             });
-        });
     }
 
     render() {
         if (!this.state || !this.state.records) {
             return (
-                <div className="padding"><em>Loading...</em></div>
+                <div className="padding">
+                    <em>Loading...</em>
+                </div>
             );
         }
 
-        const { name } = this.props.params;
+        const { route } = this.props;
+        const { name } = route.params;
 
-        const headers = ['Id', 'Name'].concat(Object.keys(this.state.records[0]).filter((v) =>
-            v !== 'attributes' && v !== 'Id' && v !== 'Name'
-        ).sort());
+        const headers = ['Id', 'Name'].concat(
+            Object.keys(this.state.records[0])
+                .filter(v => v !== 'attributes' && v !== 'Id' && v !== 'Name')
+                .sort()
+        );
 
         return (
             <div>
@@ -53,11 +59,11 @@ module.exports = class RecordList extends React.Component {
                 <DataTable
                     headers={headers}
                     records={this.state.records}
-                    onClick={(record) => {
-                        this.props.router.push(`/records/${name}/${record.Id}`)
+                    onClick={record => {
+                        this.props.history.push(`/records/${name}/${record.Id}`);
                     }}
                 />
             </div>
         );
     }
-};
+}

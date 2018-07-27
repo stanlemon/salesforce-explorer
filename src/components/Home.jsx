@@ -1,10 +1,7 @@
-'use strict';
+import React from 'react';
+import Header from './lds/Header';
 
-const React = require('react');
-const { Header } = require('./lds');
-
-module.exports = class Home extends React.Component {
-
+export default class Home extends React.Component {
     render() {
         return (
             <div>
@@ -15,4 +12,4 @@ module.exports = class Home extends React.Component {
             </div>
         );
     }
-};
+}

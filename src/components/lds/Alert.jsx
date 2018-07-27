@@ -1,10 +1,11 @@
-'use strict';
-
-const React = require('react');
+import React from 'react';
 
 function Alert({ type, message }) {
     return (
-        <div className={`slds-notify slds-notify--alert slds-theme--${type} slds-theme--alert-texture`} role="alert">
+        <div
+            className={`slds-notify slds-notify--alert slds-theme--${type} slds-theme--alert-texture`}
+            role="alert"
+        >
             <h2>{message}</h2>
         </div>
     );
@@ -15,4 +16,4 @@ Alert.defaultProps = {
     message: '',
 };
 
-module.exports = Alert;
+export default Alert;

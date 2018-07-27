@@ -1,13 +1,28 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Application</title>
-        <link rel="stylesheet" href="../node_modules/@salesforce-ux/design-system/assets/styles/salesforce-lightning-design-system.css">
-        <link rel="stylesheet" href="index.css">
-    </head>
-    <body style="-webkit-app-region: drag">
-        <div id="root"></div>
-        <script src="index.js"></script>
-    </body>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="../node_modules/@salesforce-ux/design-system/assets/styles/salesforce-lightning-design-system.css">
+</head>
+<body style="overflow: hidden; background-color: rgba(0,0,0,0); margin: 0" >
+  <div id="App"></div>
+</body>
+
+<script type="text/jsx">
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
+import ErrorBoundary from './components/ErrorBoundary';
+import Connection from './components/Connection';
+
+const render = () => {
+  const App = require('./components/App').default;
+  ReactDOM.render(<ErrorBoundary><AppContainer><Connection /></AppContainer></ErrorBoundary>, document.getElementById('App'));
+}
+
+render();
+if (module.hot) {
+  module.hot.accept(render);
+}
+</script>
 </html>

@@ -1,11 +1,8 @@
-'use strict';
+import React from 'react';
+import Header from './lds/Header';
+import DataTable from './lds/DataTable';
 
-const React = require('react');
-const { Link } = require('react-router');
-const { Header, DataTable } = require('./lds');
-
-module.exports = class ObjectList extends React.Component {
-
+export default class ObjectList extends React.Component {
     componentWillMount() {
         this.loadDescribeGlobal(this.props);
     }
@@ -23,27 +20,27 @@ module.exports = class ObjectList extends React.Component {
             if (error) {
                 console.error(error);
                 this.setState({
-                    error
+                    error,
                 });
                 return;
             }
 
             this.setState({
-                objects: res.sobjects
+                objects: res.sobjects,
             });
         });
     }
 
     render() {
         if (this.state && this.state.error) {
-            return (
-                <div>{this.state.error.message}</div>
-            );
+            return <div>{this.state.error.message}</div>;
         }
 
         if (!this.state || !this.state.objects) {
             return (
-                <div className="padding"><em>Loading objects...</em></div>
+                <div className="padding">
+                    <em>Loading objects...</em>
+                </div>
             );
         }
 
@@ -53,11 +50,11 @@ module.exports = class ObjectList extends React.Component {
                 <DataTable
                     headers={['keyPrefix', 'name', 'label', 'custom']}
                     records={this.state.objects}
-                    onClick={(record) => {
-                        this.props.router.push(`/objects/${record.name}`)
+                    onClick={record => {
+                        this.props.history.push(`/objects/${record.name}`);
                     }}
                 />
             </div>
         );
     }
-};
+}

@@ -1,10 +1,6 @@
-'use strict';
+import React from 'react';
 
-const { omit } = require('react');
-const React = require('react');
-
-module.exports = class Panel extends React.Component {
-
+export default class Panel extends React.Component {
     render() {
         const { children } = this.props;
 
@@ -16,4 +12,4 @@ module.exports = class Panel extends React.Component {
             </div>
         );
     }
-};
+}

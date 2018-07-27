@@ -1,13 +1,14 @@
-'use strict';
-
-const React = require('react');
+import React from 'react';
 
 function Button({ label, onClick }) {
     return (
-        <button onClick={onClick} className="slds-button slds-button--neutral slds-not-selected" aria-live="assertive">
-            <span className="slds-text-not-selected">
-                {label}
-            </span>
+        <button
+            type="button"
+            onClick={onClick}
+            className="slds-button slds-button--neutral slds-not-selected"
+            aria-live="assertive"
+        >
+            <span className="slds-text-not-selected">{label}</span>
         </button>
     );
 }
@@ -17,4 +18,4 @@ Button.defaultProps = {
     onClick: () => {},
 };
 
-module.exports = Button;
+export default Button;
