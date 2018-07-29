@@ -40,8 +40,8 @@
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
       "github_repository": {
-        "owner": "stosh1985@gmail.com",
-        "name": "Stan Lemon"
+        "owner": "stanlemon",
+        "name": "salesforce-explorer"
       },
       "windowsStoreConfig": {
         "packageName": "",
