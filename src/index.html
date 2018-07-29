@@ -12,17 +12,27 @@
 <script type="text/jsx">
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 import ErrorBoundary from './components/ErrorBoundary';
 import Connection from './components/Connection';
 
+// Whether or not we were started in dev mode
+const isDev = process.env.NODE_ENV === 'development';
+
 const render = () => {
   const App = require('./components/App').default;
-  ReactDOM.render(<ErrorBoundary><AppContainer><Connection /></AppContainer></ErrorBoundary>, document.getElementById('App'));
+
+  // In dev mode we use the <AppContainer/> which allows us to hot reload components
+  if (isDev) {
+    const { AppContainer } = require('react-hot-loader');
+    ReactDOM.render(<ErrorBoundary><AppContainer><Connection /></AppContainer></ErrorBoundary>, document.getElementById('App'));
+  } else {
+    ReactDOM.render(<ErrorBoundary><Connection /></ErrorBoundary>, document.getElementById('App'));
+  }
 }
 
 render();
-if (module.hot) {
+
+if (isDev && module.hot) {
   module.hot.accept(render);
 }
 </script>
