@@ -1,4 +1,5 @@
 node_modules/
+node_modules_bak/
 dist/
 .DS_Store
 src/config.json

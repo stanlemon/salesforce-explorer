@@ -8,7 +8,7 @@
   "keywords": [],
   "main": "src/index.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "NODE_ENV=development electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -30,7 +30,9 @@
         ]
       },
       "electronPackagerConfig": {
-        "packageManager": "npm"
+        "packageManager": "npm",
+        "executableName": "Salesforce Explorer",
+        "prune": true
       },
       "electronWinstallerConfig": {
         "name": "salesforce_explorer"
@@ -50,8 +52,6 @@
   "dependencies": {
     "@salesforce-ux/design-system": "^2.2.2",
     "electron-compile": "^6.4.3",
-    "electron-devtools-installer": "^2.1.0",
-    "electron-squirrel-startup": "^1.0.0",
     "jsforce": "^1.7.1",
     "keytar": "^4.0.2",
     "lodash": "^4.17.4",
@@ -60,7 +60,6 @@
     "pouchdb-adapter-node-websql": "^7.0.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-hot-loader": "^4.3.4",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1"
   },
@@ -70,8 +69,10 @@
     "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
+    "electron-devtools-installer": "^2.1.0",
     "electron-forge": "^5.2.2",
     "electron-prebuilt-compile": "2.0.4",
+    "electron-squirrel-startup": "^1.0.0",
     "eslint": "^4",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.1.0",
@@ -80,6 +81,7 @@
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.10.0",
-    "prettier": "^1.13.7"
+    "prettier": "^1.14.0",
+    "react-hot-loader": "^4.3.4"
   }
 }

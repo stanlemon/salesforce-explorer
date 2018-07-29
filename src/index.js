@@ -1,8 +1,4 @@
 import electron from 'electron';
-import installExtension, {
-    REACT_DEVELOPER_TOOLS,
-} from 'electron-devtools-installer';
-import { enableLiveReload } from 'electron-compile';
 import keytar from 'keytar';
 import querystring from 'querystring';
 import url from 'url';
@@ -14,9 +10,21 @@ PouchDB.plugin(require('pouchdb-adapter-node-websql'));
 
 const config = require('./config.json');
 
-const isDevMode = process.execPath.match(/[\\/]electron/);
+const DEV = 'development';
+const PROD = 'production';
 
-if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
+// Default to production
+const ENV = process.env.NODE_ENV || PROD;
+
+const isDevMode = ENV === DEV;
+
+console.log('Loading application in ' + ENV);
+
+if (isDevMode) {
+    // Enable live reloading whenn we are in development mode
+    const { enableLiveReload } = require('electron-compile');
+    enableLiveReload({ strategy: 'react-hmr' });
+}
 
 const KEYTAR_SERVICE = 'Salesforce Explorer';
 const KEYTAR_ACCOUNT = 'Oauth';
@@ -115,7 +123,11 @@ async function runApplication(options) {
     });
 
     if (isDevMode) {
-        await installExtension(REACT_DEVELOPER_TOOLS);
+        // Add the react developer tools extension when we are in development mode
+        const devTools = require('electron-devtools-installer');
+        const installExtension = devTools.default;
+
+        await installExtension(devTools.REACT_DEVELOPER_TOOLS);
 
         app.webContents.openDevTools({
             mode: 'undocked',
